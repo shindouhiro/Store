@@ -1,37 +1,27 @@
 // admin/src/app/login/page.tsx
 'use client';
 
-import { Form, Input, Button, message } from 'antd';
-import { useRouter } from 'next/navigation';
+import { Form, Input, Button } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { login } from '@/services/auth';
-
-interface LoginFormValues {
-  username: string;
-  password: string;
-}
+import { useAuth } from '@/hooks/useAuth';
+import type { LoginParams } from '@/services/auth';
 
 export default function LoginPage() {
-  const router = useRouter();
+  const { login } = useAuth();
 
-  const onFinish = async (values: LoginFormValues) => {
+  const onFinish = async (values: LoginParams) => {
     try {
-      const response = await login(values);
-      // 保存 token
-      localStorage.setItem('token', response.access_token);
-      // 保存用户信息
-      localStorage.setItem('user', JSON.stringify(response.user));
-      router.replace('/dashboard');
-      message.success('登录成功');
+      await login(values);
     } catch (error) {
-      message.error('登录失败：' + (error.response?.data?.message || '未知错误'));
+      // 错误已在 axios 拦截器中处理
+      console.error('Login failed:', error);
     }
   };
 
   return (
     <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-        <Form<LoginFormValues>
+        <Form<LoginParams>
           name="login"
           onFinish={onFinish}
           autoComplete="off"
