@@ -1,8 +1,10 @@
+// admin/src/app/login/page.tsx
 'use client';
 
 import { Form, Input, Button, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { login } from '@/services/auth';
 
 interface LoginFormValues {
   username: string;
@@ -12,13 +14,17 @@ interface LoginFormValues {
 export default function LoginPage() {
   const router = useRouter();
 
-  const onFinish = (values: LoginFormValues) => {
-    if (values.username === 'admin' && values.password === '123456') {
-      localStorage.setItem('token', 'mock-token');
+  const onFinish = async (values: LoginFormValues) => {
+    try {
+      const response = await login(values);
+      // 保存 token
+      localStorage.setItem('token', response.access_token);
+      // 保存用户信息
+      localStorage.setItem('user', JSON.stringify(response.user));
       router.replace('/dashboard');
       message.success('登录成功');
-    } else {
-      message.error('账号或密码错误');
+    } catch (error) {
+      message.error('登录失败：' + (error.response?.data?.message || '未知错误'));
     }
   };
 
@@ -65,4 +71,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-} 
+}
