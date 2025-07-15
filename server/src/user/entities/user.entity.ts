@@ -11,12 +11,20 @@ export class User {
   @ApiProperty({ description: '用户名' })
   username: string;
 
+  @Column({ unique: true })
+  @ApiProperty({ description: '邮箱' })
+  email: string;
+
   @Column()
   password: string;
 
   @Column({ nullable: true })
   @ApiProperty({ description: '昵称' })
   nickname: string;
+
+  @Column({ type: 'enum', enum: ['admin', 'user'], default: 'user' })
+  @ApiProperty({ description: '用户角色' })
+  role: 'admin' | 'user';
 
   @CreateDateColumn()
   @ApiProperty({ description: '创建时间' })
@@ -25,4 +33,4 @@ export class User {
   @UpdateDateColumn()
   @ApiProperty({ description: '更新时间' })
   updatedAt: Date;
-} 
+}
