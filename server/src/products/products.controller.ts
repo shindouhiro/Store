@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Post } from '@nestjs/common';
+import { Controller, Get, Body, Post, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -11,13 +11,11 @@ export class ProductsController {
 
   @Get()
   @ApiOperation({ summary: '获取产品列表' })
-  findAll() {
-    return this.productsService.findAll();
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 10,
+  ) {
+    return this.productsService.findAll(Number(page), Number(pageSize));
   }
 
-  @Post('/categories')
-  @ApiOperation({ summary: '创建分类' })
-  async createCategory(@Body() dto: CreateCategoryDto): Promise<Category> {
-    return this.productsService.createCategory(dto);
-  }
 } 
