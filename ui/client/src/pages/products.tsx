@@ -16,6 +16,7 @@ export default function Products() {
   const { data: products, isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
+  console.log(products);
 
   const filterButtons = [
     { label: "All Products", value: "all" },

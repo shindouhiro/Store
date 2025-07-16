@@ -22,7 +22,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     dress: "bg-purple-600 hover:bg-purple-700",
   };
 
-  const specifications = JSON.parse(product.specifications || "{}");
+  const specifications = product.specifications || "{}";
   const rating = parseFloat(product.rating || "0");
 
   return (

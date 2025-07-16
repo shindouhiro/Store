@@ -29,9 +29,13 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    fs: {
-      strict: true,
-      deny: ["**/.*"],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        // 如果后端不需要 /api 前缀，可以加 rewrite
+        // rewrite: (path) => path.replace(/^\/api/, ''),
+      },
     },
   },
 });

@@ -1,9 +1,9 @@
-import { DataSource } from 'typeorm';
-import { User } from '../../user/entities/user.entity';
+import { AppDataSource } from './data-source';
+import { User } from '../src/user/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 
-export const userSeed = async (dataSource: DataSource) => {
-  const userRepository = dataSource.getRepository(User);
+export async function seedUsers() {
+  const userRepository = AppDataSource.getRepository(User);
 
   // 检查是否已存在管理员用户
   const existingAdmin = await userRepository.findOne({ where: { username: 'admin' } });
@@ -56,4 +56,4 @@ export const userSeed = async (dataSource: DataSource) => {
     await userRepository.save(user);
     console.log(`测试用户 ${userData.username} 创建成功`);
   }
-}; 
+} 

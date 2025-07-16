@@ -7,24 +7,24 @@ export class User {
   @ApiProperty({ description: '用户ID' })
   id: number;
 
-  @Column({ unique: true })
+  @Column('varchar', { unique: true })
   @ApiProperty({ description: '用户名' })
   username: string;
 
-  @Column({ unique: true })
-  @ApiProperty({ description: '邮箱' })
-  email: string;
-
-  @Column()
+  @Column('varchar')
   password: string;
 
-  @Column({ nullable: true })
+  @Column('varchar', { nullable: true })
   @ApiProperty({ description: '昵称' })
   nickname: string;
 
-  @Column({ type: 'enum', enum: ['admin', 'user'], default: 'user' })
-  @ApiProperty({ description: '用户角色' })
-  role: 'admin' | 'user';
+  @Column('varchar', { nullable: true })
+  @ApiProperty({ description: '邮箱' })
+  email: string;
+
+  @Column('varchar', { nullable: true })
+  @ApiProperty({ description: '角色' })
+  role: string;
 
   @CreateDateColumn()
   @ApiProperty({ description: '创建时间' })
