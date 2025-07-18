@@ -7,7 +7,7 @@ async function main() {
   await seedProducts();
   await seedUsers();
   await AppDataSource.destroy();
-  console.log('所有 seeds 执行完毕....');
+  console.log('所有 seeds 执行完毕...22.');
 }
 
 main().catch(e => {
