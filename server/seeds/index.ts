@@ -3,7 +3,6 @@ import { seedProducts } from './products.seed';
 import { seedUsers } from './user.seed';
 
 async function main() {
-  console.log('开始执行数据库种子');
   await AppDataSource.initialize();
   await seedProducts();
   await seedUsers();
