@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { Product } from '../src/products/entities/product.entity';
-import { Category } from '../src/products/entities/category.entity';
+import { Category } from '../src/category/entities/category.entity';
 import { User } from '../src/user/entities/user.entity';
 
 export const AppDataSource = new DataSource({

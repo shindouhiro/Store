@@ -45,6 +45,11 @@ const menuData = [
     icon: <ShopOutlined />,
   },
   {
+    path: '/categories',
+    name: '分类管理',
+    icon: <BarsOutlined />,
+  },
+  {
     path: '/orders',
     name: '订单管理',
     icon: <BarsOutlined />,
