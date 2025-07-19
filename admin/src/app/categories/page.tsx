@@ -38,11 +38,13 @@ const CategoryPage: React.FC = () => {
       dataIndex: 'id',
       width: 80,
       search: false,
+      fixed: 'left',
     },
     {
       title: '分类名称',
       dataIndex: 'name',
-      width: 150,
+      width: 180,
+      fixed: 'left',
       render: (text, record) => (
         <Space>
           {record.icon && <span className="text-lg">{record.icon}</span>}
@@ -53,7 +55,7 @@ const CategoryPage: React.FC = () => {
     {
       title: '描述',
       dataIndex: 'description',
-      width: 200,
+      width: 250,
       ellipsis: true,
       search: false,
     },
@@ -84,12 +86,12 @@ const CategoryPage: React.FC = () => {
     {
       title: '排序',
       dataIndex: 'sortOrder',
-      width: 100,
+      width: 120,
       search: false,
       render: (text, record) => (
         <Input
           type="number"
-          value={text}
+          defaultValue={text as number}
           style={{ width: 80 }}
           onChange={async (e) => {
             const value = parseInt(e.target.value);
@@ -109,7 +111,7 @@ const CategoryPage: React.FC = () => {
     {
       title: '产品数量',
       dataIndex: 'products',
-      width: 100,
+      width: 120,
       search: false,
       render: (_, record) => (
         <Tag color="blue">{record.products?.length || 0}</Tag>
@@ -123,9 +125,17 @@ const CategoryPage: React.FC = () => {
       search: false,
     },
     {
+      title: '更新时间',
+      dataIndex: 'updatedAt',
+      width: 180,
+      valueType: 'dateTime',
+      search: false,
+    },
+    {
       title: '操作',
       valueType: 'option',
-      width: 200,
+      width: 300,
+      fixed: 'right',
       render: (_, record) => [
         <Tooltip key="view" title="查看详情">
           <Button
@@ -227,9 +237,9 @@ const CategoryPage: React.FC = () => {
             active: isActive,
           });
           return {
-            data: result.data,
+            data: result.data.data,
             success: true,
-            total: result.total,
+            total: result.data.total,
           };
         }}
         columns={columns}
@@ -238,6 +248,8 @@ const CategoryPage: React.FC = () => {
           showSizeChanger: true,
           showQuickJumper: true,
         }}
+        scroll={{ x: 1200 }}
+        sticky
       />
 
       {/* 创建分类模态框 */}
