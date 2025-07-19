@@ -23,19 +23,26 @@ export class CategoryController {
   @ApiQuery({ name: 'page', required: false, description: '页码', type: Number })
   @ApiQuery({ name: 'pageSize', required: false, description: '每页数量', type: Number })
   @ApiQuery({ name: 'active', required: false, description: '是否只获取启用的分类', type: Boolean })
+  @ApiQuery({ name: 'name', required: false, description: '按分类名称模糊搜索' })
+  @ApiQuery({ name: 'isActive', required: false, description: '按启用状态筛选', type: Boolean })
   @ApiResponse({ status: 200, description: '成功获取分类列表' })
   findAll(
     @Query('page') page?: number,
     @Query('pageSize') pageSize?: number,
     @Query('active') active?: boolean,
+    @Query('name') name?: string,
+    @Query('isActive') isActive?: boolean,
   ) {
     if (page && pageSize) {
-      return this.categoryService.findAllPaginated(Number(page), Number(pageSize));
+      return this.categoryService.findAllPaginated(Number(page), Number(pageSize), {
+        name,
+        isActive: isActive !== undefined ? isActive : active,
+      });
     }
     if (active === true) {
       return this.categoryService.findActive();
     }
-    return this.categoryService.findAll();
+    return this.categoryService.findAll({ name, isActive });
   }
 
   @Get('search')

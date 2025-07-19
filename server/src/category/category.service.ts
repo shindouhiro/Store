@@ -5,6 +5,11 @@ import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 
+interface CategoryFilterOptions {
+  name?: string;
+  isActive?: boolean;
+}
+
 @Injectable()
 export class CategoryService {
   constructor(
@@ -31,18 +36,40 @@ export class CategoryService {
     return this.categoryRepository.save(category);
   }
 
-  async findAll(): Promise<Category[]> {
-    return this.categoryRepository.find({
-      order: { sortOrder: 'ASC', id: 'ASC' },
-    });
+  async findAll(filters?: CategoryFilterOptions): Promise<Category[]> {
+    const queryBuilder = this.categoryRepository.createQueryBuilder('category');
+
+    if (filters?.name) {
+      queryBuilder.andWhere('category.name LIKE :name', { name: `%${filters.name}%` });
+    }
+
+    if (filters?.isActive !== undefined) {
+      queryBuilder.andWhere('category.isActive = :isActive', { isActive: filters.isActive });
+    }
+
+    return queryBuilder
+      .orderBy('category.sortOrder', 'ASC')
+      .addOrderBy('category.id', 'ASC')
+      .getMany();
   }
 
-  async findAllPaginated(page = 1, pageSize = 10) {
-    const [data, total] = await this.categoryRepository.findAndCount({
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      order: { sortOrder: 'ASC', id: 'ASC' },
-    });
+  async findAllPaginated(page = 1, pageSize = 10, filters?: CategoryFilterOptions) {
+    const queryBuilder = this.categoryRepository.createQueryBuilder('category');
+
+    if (filters?.name) {
+      queryBuilder.andWhere('category.name LIKE :name', { name: `%${filters.name}%` });
+    }
+
+    if (filters?.isActive !== undefined) {
+      queryBuilder.andWhere('category.isActive = :isActive', { isActive: filters.isActive });
+    }
+
+    const [data, total] = await queryBuilder
+      .orderBy('category.sortOrder', 'ASC')
+      .addOrderBy('category.id', 'ASC')
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getManyAndCount();
 
     return {
       data,

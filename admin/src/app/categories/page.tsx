@@ -230,16 +230,18 @@ const CategoryPage: React.FC = () => {
           </Button>,
         ]}
         request={async (params) => {
-          const { current, pageSize, isActive } = params;
+          const { current, pageSize, isActive, name } = params;
           const result = await getCategoryList({
             page: current || 1,
             pageSize: pageSize || 10,
-            active: isActive,
+            isActive,
+            name,
           });
+          console.log(result);
           return {
-            data: result.data.data,
+            data: result.data,
             success: true,
-            total: result.data.total,
+            total: result.total,
           };
         }}
         columns={columns}

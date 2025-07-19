@@ -32,6 +32,8 @@ export interface CategoryListParams {
   page?: number;
   pageSize?: number;
   active?: boolean;
+  name?: string;
+  isActive?: boolean;
 }
 
 export interface CategoryListResponse {
@@ -44,12 +46,14 @@ export interface CategoryListResponse {
 
 // 获取分类列表
 export async function getCategoryList(params: CategoryListParams = {}) {
-  const { page = 1, pageSize = 10, active } = params;
+  const { page = 1, pageSize = 10, active, name, isActive } = params;
   const queryParams = new URLSearchParams();
   
   if (page) queryParams.append('page', page.toString());
   if (pageSize) queryParams.append('pageSize', pageSize.toString());
   if (active !== undefined) queryParams.append('active', active.toString());
+  if (name) queryParams.append('name', name);
+  if (isActive !== undefined) queryParams.append('isActive', isActive.toString());
 
   const url = `/categories${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
   return request.get<CategoryListResponse>(url);
