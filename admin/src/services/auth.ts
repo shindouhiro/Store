@@ -8,11 +8,18 @@ export interface LoginParams {
 
 export interface LoginResponse {
   access_token: string;
-  user: {
-    id: number;
-    username: string;
-    nickname?: string;
-  };
+
+}
+
+export interface UserProfile {
+  id: number;
+  username: string;
+  nickname?: string;
+  email?: string;
+  avatar?: string;
+  role?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const authApi = {
@@ -24,8 +31,10 @@ export const authApi = {
     return request.post<LoginResponse>('/auth/register', params);
   },
 
-  // 获取当前用户信息
-  getCurrentUser: () => {
-    return request.get<LoginResponse['user']>('/auth/me');
+
+
+  // 获取用户详细信息
+  getUserProfile: () => {
+    return request.get<UserProfile>('/user/profile');
   },
 };

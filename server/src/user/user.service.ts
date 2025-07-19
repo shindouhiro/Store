@@ -32,4 +32,8 @@ export class UserService {
     }
     return null;
   }
+
+  async findById(id: number): Promise<User | undefined> {
+    return this.userRepository.findOne({ where: { id } });
+  }
 } 
