@@ -1,6 +1,6 @@
 # 管理后台
 
-基于 Next.js 和 Ant Design Pro 构建的管理后台系统。
+基于 Next.js 和 Ant Design Pro 构建的管理后台系统。.
 
 ## 功能特性
 
