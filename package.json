@@ -1,0 +1,20 @@
+{
+  "name": "monorepo-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo workspace containing server, admin, and ui projects",
+  "scripts": {
+    "build:server": "pnpm run --filter server build",
+    "build:admin": "pnpm run --filter admin build", 
+    "build:ui": "pnpm run --filter rest-express build",
+    "dev:server": "pnpm run --filter server dev",
+    "dev:admin": "pnpm run --filter admin dev",
+    "dev:ui": "pnpm run --filter rest-express dev"
+  },
+  "devDependencies": {},
+  "workspaces": [
+    "server",
+    "admin", 
+    "ui"
+  ]
+} 
