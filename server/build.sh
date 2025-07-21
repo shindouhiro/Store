@@ -10,16 +10,7 @@ echo "🚀 开始构建流程..."
 
 # 配置npm镜像源
 echo "🔧 配置npm镜像源..."
-
-# 检查pnpm是否安装
-if ! command -v pnpm &> /dev/null; then
-    echo "❌ pnpm未安装，正在安装..."
-    npm install -g pnpm
-fi
-
-# 配置pnpm镜像源
-echo "🔧 配置pnpm镜像源..."
-pnpm config set registry https://registry.npmmirror.com
+npm config set registry https://registry.npmmirror.com
 
 # 清理旧的构建产物
 echo "🧹 清理旧的构建产物..."
@@ -28,11 +19,9 @@ rm -rf dist/
 # 本地构建
 echo "📦 开始本地构建..."
 echo "安装依赖..."
-# 增加超时时间和重试次数
-pnpm install 
+npm install
 echo "开始构建..."
-pnpm run --filter . build
-
+npm run build
 
 if [ $? -ne 0 ]; then
     echo "❌ 本地构建失败!"

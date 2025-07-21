@@ -14,25 +14,6 @@ pipeline {
             }
         }
         
-        stage('Setup Environment') {
-            steps {
-                // 安装pnpm
-                sh '''
-                    # 检查Node.js版本
-                    echo "🔍 Node.js版本: $(node --version)"
-                    echo "🔍 npm版本: $(npm --version)"
-                    
-                    # 检查pnpm是否已安装
-                    if ! command -v pnpm &> /dev/null; then
-                        echo "📦 正在安装pnpm..."
-                        npm install -g pnpm
-                    else
-                        echo "✅ pnpm已安装，版本: $(pnpm --version)"
-                    fi
-                '''
-            }
-        }
-        
         
         stage('Docker Build & Deploy') {
             steps {
