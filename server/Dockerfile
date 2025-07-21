@@ -8,13 +8,13 @@ WORKDIR /app
 RUN npm config set registry https://registry.npmmirror.com
 
 # 安装pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@latest
 
 # 复制package.json和pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
 
 # 安装依赖
-RUN pnpm install
+RUN pnpm install --force
 
 # 复制源代码
 COPY . .
@@ -32,13 +32,13 @@ WORKDIR /app
 RUN npm config set registry https://registry.npmmirror.com
 
 # 安装pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@latest
 
 # 复制package.json和pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
 
 # 只安装生产依赖
-RUN pnpm install --prod
+RUN pnpm install --prod --force
 
 # 从构建阶段复制构建产物
 COPY --from=builder /app/dist ./dist

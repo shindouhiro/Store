@@ -6,14 +6,15 @@ FROM base AS deps
 # 设置npm镜像源
 RUN npm config set registry https://registry.npmmirror.com
 
-# 安装pnpm
-RUN npm install -g pnpm
+# 安装特定版本的pnpm
+RUN npm install -g pnpm@latest
 
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json pnpm-lock.yaml* package-lock.json* ./
-RUN pnpm install --frozen-lockfile
+# 使用force参数解决lockfile兼容性问题
+RUN pnpm install --force
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -22,16 +23,16 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Next.js builds configuration
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm install -g pnpm && pnpm run build
+RUN npm install -g pnpm@latest && pnpm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -50,8 +51,8 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # server.js is created by next build from the standalone output
 CMD ["node", "server.js"] 
