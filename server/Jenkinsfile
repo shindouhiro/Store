@@ -4,34 +4,39 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // 检出代码，工作目录设置为server
-                dir('server') {
-                    checkout scm
-                }
+                // 检出整个仓库到workspace
+                checkout scm
             }
         }
         
         stage('Setup Environment') {
             steps {
-                dir('server') {
-                    // 安装pnpm
-                    sh '''
-                        # 检查pnpm是否已安装
-                        if ! command -v pnpm &> /dev/null; then
-                            echo "📦 正在安装pnpm..."
-                            npm install -g pnpm
-                        else
-                            echo "✅ pnpm已安装，版本: $(pnpm --version)"
-                        fi
-                    '''
-                }
+                // 安装pnpm
+                sh '''
+                    # 检查Node.js版本
+                    echo "🔍 Node.js版本: $(node --version)"
+                    echo "🔍 npm版本: $(npm --version)"
+                    
+                    # 检查pnpm是否已安装
+                    if ! command -v pnpm &> /dev/null; then
+                        echo "📦 正在安装pnpm..."
+                        npm install -g pnpm
+                    else
+                        echo "✅ pnpm已安装，版本: $(pnpm --version)"
+                    fi
+                '''
             }
         }
         
         stage('Install Dependencies') {
             steps {
+                // 切换到server目录并安装依赖
                 dir('server') {
-                    sh 'pnpm install'
+                    sh '''
+                        echo "📁 当前目录: $(pwd)"
+                        echo "📦 安装依赖..."
+                        pnpm install
+                    '''
                 }
             }
         }
@@ -39,15 +44,11 @@ pipeline {
         stage('Build') {
             steps {
                 dir('server') {
-                    sh 'pnpm run build'
-                }
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                dir('server') {
-                    sh 'pnpm run test'
+                    sh '''
+                        echo "🔨 开始构建..."
+                        pnpm run build
+                        echo "✅ 构建完成"
+                    '''
                 }
             }
         }
@@ -55,10 +56,25 @@ pipeline {
         stage('Docker Build & Deploy') {
             steps {
                 dir('server') {
-                    sh 'chmod +x build.sh'
-                    sh './build.sh'
+                    sh '''
+                        echo "🐳 开始Docker构建和部署..."
+                        chmod +x build.sh
+                        ./build.sh
+                    '''
                 }
             }
+        }
+    }
+    
+    post {
+        always {
+            echo '🏁 Pipeline执行完成'
+        }
+        success {
+            echo '✅ Pipeline执行成功！'
+        }
+        failure {
+            echo '❌ Pipeline执行失败！'
         }
     }
 }

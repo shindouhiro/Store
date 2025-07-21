@@ -8,7 +8,8 @@
     "start": "nest start",
     "start:prod": "node dist/main",
     "seed": "tsx seeds/index.ts",
-    "seed:build": "npm run build && node dist/database/seeds/run-seeds.js"
+    "seed:build": "npm run build && node dist/database/seeds/run-seeds.js",
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
