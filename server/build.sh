@@ -38,55 +38,66 @@ rm -rf dist/
 # 本地构建
 echo "📦 开始本地构建..."
 echo "安装依赖..."
-pnpm install 
+pnpm install --network-timeout 300000 --fetch-retries 5
 
 echo "开始构建..."
-# 方案1：直接使用TypeScript编译器
-echo "🔨 使用TypeScript编译器构建..."
-npx tsc -p tsconfig.json
 
-# 检查构建结果
+# 方案1：确保在独立环境中使用npm run build
+echo "🔨 使用npm run build构建..."
+npm run build
+
+# 如果npm run build失败，尝试其他方法
 if [ $? -ne 0 ]; then
-    echo "⚠️ TypeScript编译失败，尝试使用webpack构建..."
-    # 方案2：使用webpack构建（NestJS默认使用webpack）
-    npx webpack --config webpack.config.js 2>/dev/null || {
-        echo "⚠️ webpack构建失败，尝试手动nest构建..."
-        # 方案3：在隔离环境中使用nest build
-        # 创建临时目录避免扫描父目录
-        TEMP_DIR="/tmp/nest-build-$$"
-        mkdir -p "$TEMP_DIR"
+    echo "⚠️ npm run build失败，尝试直接使用nest build..."
+    
+    # 临时修改当前目录的PATH，确保只使用本地node_modules
+    export PATH="./node_modules/.bin:$PATH"
+    
+    # 使用独立的nest build命令
+    NODE_OPTIONS="--max-old-space-size=4096" nest build --path ./tsconfig.json
+    
+    if [ $? -ne 0 ]; then
+        echo "⚠️ nest build也失败，尝试使用TypeScript编译..."
         
-        # 复制必要文件到临时目录
-        cp -r src package.json tsconfig.json nest-cli.json node_modules "$TEMP_DIR/" 2>/dev/null || true
+        # 创建临时的更完整的tsconfig.json
+        cat > tsconfig.build.json << 'EOF'
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
+}
+EOF
         
-        cd "$TEMP_DIR"
-        npx nest build 2>/dev/null || {
-            cd - 
-            # 最后的方案：使用简化的nest build命令，明确指定项目
-            NODE_ENV=production npx nest build --webpack false
-        }
-        
-        if [ -d "$TEMP_DIR/dist" ]; then
-            cd -
-            cp -r "$TEMP_DIR/dist" ./
-            rm -rf "$TEMP_DIR"
-        else
-            cd -
-            rm -rf "$TEMP_DIR"
-        fi
-    }
+        npx tsc -p tsconfig.build.json
+        rm -f tsconfig.build.json
+    fi
 fi
 
-# 最终检查
-if [ ! -d "dist" ] || [ ! -f "dist/main.js" ]; then
-    echo "❌ 构建失败，未找到构建产物!"
-    echo "📂 当前目录内容："
-    ls -la
+# 检查构建结果
+if [ ! -d "dist" ]; then
+    echo "❌ 构建失败，dist目录不存在!"
     exit 1
 fi
 
+if [ ! -f "dist/main.js" ]; then
+    echo "⚠️ 主文件不存在，检查构建产物..."
+    echo "📂 dist目录内容："
+    find dist -name "*.js" | head -10
+    
+    # 检查是否有其他可能的入口文件
+    if [ -f "dist/src/main.js" ]; then
+        echo "🔧 发现嵌套的构建产物，进行修正..."
+        mv dist/src/* dist/
+        rmdir dist/src
+    fi
+fi
+
 echo "✅ NestJS构建成功!"
-echo "📂 构建产物："
+echo "📂 最终构建产物："
 ls -la dist/
 
 # 构建Docker镜像
