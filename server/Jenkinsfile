@@ -19,9 +19,33 @@ pipeline {
             steps {
                 dir('server') {
                     sh '''
-                        echo "🐳 开始Docker构建和部署..."
-                        chmod +x build.sh
-                        ./build.sh
+                        echo "📁 当前目录: $(pwd)"
+                        echo "🧹 清理环境..."
+                        rm -rf dist/
+                        
+                        echo "🔧 配置镜像源..."
+                        npm config set registry https://registry.npmmirror.com
+                        pnpm config set registry https://registry.npmmirror.com
+                        
+                        echo "📦 安装依赖..."
+                        pnpm install --network-timeout 300000
+                        
+                        echo "🔨 使用TypeScript直接编译..."
+                        npx tsc -p tsconfig.json
+                        
+                        echo "✅ 构建完成，检查产物..."
+                        ls -la dist/
+                    '''
+                    sh '''
+                        # Docker构建部分
+                        IMAGE_NAME="shindouhiro/storeserver"
+                        VERSION=$(date +%Y%m%d-%H%M%S)
+                        
+                        echo "🐳 开始Docker构建..."
+                        docker buildx create --name builder --use || docker buildx use builder
+                        docker login
+                        docker buildx build --platform linux/amd64,linux/arm64 --tag ${IMAGE_NAME}:${VERSION} --tag ${IMAGE_NAME}:latest --push .
+                        docker buildx stop builder || true
                     '''
                 }
             }
