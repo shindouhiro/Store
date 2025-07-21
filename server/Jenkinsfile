@@ -33,30 +33,6 @@ pipeline {
             }
         }
         
-        stage('Install Dependencies') {
-            steps {
-                // 切换到server目录并安装依赖
-                dir('server') {
-                    sh '''
-                        echo "📁 当前目录: $(pwd)"
-                        echo "📦 安装依赖..."
-                        pnpm install
-                    '''
-                }
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                dir('server') {
-                    sh '''
-                        echo "🔨 开始构建..."
-                        pnpm run build
-                        echo "✅ 构建完成"
-                    '''
-                }
-            }
-        }
         
         stage('Docker Build & Deploy') {
             steps {
