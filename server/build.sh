@@ -38,16 +38,19 @@ rm -rf dist/
 # 本地构建
 echo "📦 开始本地构建..."
 echo "安装依赖..."
-pnpm install 
+# 切换到workspace根目录安装所有依赖
+cd ..
+pnpm install
 echo "开始构建..."
 
-# 方案1：确保在独立环境中使用npm run build
-echo "🔨 使用npm run build构建..."
-npm run build
+# 方案1：使用workspace根目录script构建server项目
+echo "🔨 使用workspace构建server项目..."
+pnpm run build:server
+cd server
 
-# 如果npm run build失败，尝试其他方法
+# 如果workspace build失败，尝试其他方法
 if [ $? -ne 0 ]; then
-    echo "⚠️ npm run build失败，尝试直接使用nest build..."
+    echo "⚠️ workspace build失败，尝试直接使用nest build..."
     
     # 临时修改当前目录的PATH，确保只使用本地node_modules
     export PATH="./node_modules/.bin:$PATH"
