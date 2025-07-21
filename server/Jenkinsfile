@@ -9,6 +9,7 @@ pipeline {
             steps {
                 // 检出整个仓库到workspace
                 checkout scm
+                sh 'docker --version'
             }
         }
         
