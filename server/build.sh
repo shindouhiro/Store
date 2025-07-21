@@ -38,8 +38,7 @@ rm -rf dist/
 # 本地构建
 echo "📦 开始本地构建..."
 echo "安装依赖..."
-pnpm install --network-timeout 300000 --fetch-retries 5
-
+pnpm install 
 echo "开始构建..."
 
 # 方案1：确保在独立环境中使用npm run build
