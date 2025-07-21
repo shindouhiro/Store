@@ -38,3 +38,4 @@ export class Category {
   @OneToMany('Product', 'category')
   products: any[];
 } 
+ 

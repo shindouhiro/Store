@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                // 检出代码，工作目录设置为server
+                dir('server') {
+                    checkout scm
+                }
+            }
+        }
+        
+        stage('Install Dependencies') {
+            steps {
+                dir('server') {
+                    sh 'pnpm install'
+                }
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                dir('server') {
+                    sh 'pnpm run build'
+                }
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                dir('server') {
+                    sh 'pnpm run test'
+                }
+            }
+        }
+        
+        stage('Docker Build & Deploy') {
+            steps {
+                dir('server') {
+                    sh 'chmod +x build.sh'
+                    sh './build.sh'
+                }
+            }
+        }
+    }
+}
