@@ -31,7 +31,8 @@ echo "安装依赖..."
 # 增加超时时间和重试次数
 pnpm install 
 echo "开始构建..."
-pnpm run build
+pnpm run --filter . build
+
 
 if [ $? -ne 0 ]; then
     echo "❌ 本地构建失败!"
