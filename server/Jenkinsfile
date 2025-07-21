@@ -11,6 +11,23 @@ pipeline {
             }
         }
         
+        stage('Setup Environment') {
+            steps {
+                dir('server') {
+                    // 安装pnpm
+                    sh '''
+                        # 检查pnpm是否已安装
+                        if ! command -v pnpm &> /dev/null; then
+                            echo "📦 正在安装pnpm..."
+                            npm install -g pnpm
+                        else
+                            echo "✅ pnpm已安装，版本: $(pnpm --version)"
+                        fi
+                    '''
+                }
+            }
+        }
+        
         stage('Install Dependencies') {
             steps {
                 dir('server') {
