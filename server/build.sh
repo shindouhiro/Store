@@ -29,7 +29,7 @@ rm -rf dist/
 echo "📦 开始本地构建..."
 echo "安装依赖..."
 # 增加超时时间和重试次数
-pnpm install --network-timeout 300000 --fetch-retries 5
+pnpm install 
 echo "开始构建..."
 pnpm run build
 
