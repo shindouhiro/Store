@@ -230,19 +230,27 @@ const CategoryPage: React.FC = () => {
           </Button>,
         ]}
         request={async (params) => {
-          const { current, pageSize, isActive, name } = params;
-          const result = await getCategoryList({
-            page: current || 1,
-            pageSize: pageSize || 10,
-            isActive,
-            name,
-          });
-          console.log(result);
-          return {
-            data: result.data,
-            success: true,
-            total: result.total,
-          };
+          try {
+            const { current, pageSize, isActive, name } = params;
+            const result = await getCategoryList({
+              page: current || 1,
+              pageSize: pageSize || 10,
+              isActive,
+              name,
+            });
+            console.log(result);
+            return {
+              data: result.data.data || [],
+              success: true,
+              total: result.data.total || 0,
+            };
+          } catch {
+            return {
+              data: [],
+              success: false,
+              total: 0,
+            };
+          }
         }}
         columns={columns}
         pagination={{

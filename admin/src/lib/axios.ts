@@ -52,7 +52,7 @@ http.interceptors.response.use(
           message.error('服务器错误');
           break;
         default:
-          message.error(error.response.data?.message || '请求失败');
+          message.error((error.response.data as ErrorResponse)?.message || '请求失败');
       }
     } else if (error.request) {
       message.error('网络请求失败，请检查网络连接');
@@ -87,6 +87,13 @@ export interface Response<T = unknown> {
   code: number;
   data: T;
   message: string;
+}
+
+// 错误响应类型
+interface ErrorResponse {
+  message?: string;
+  error?: string;
+  code?: number;
 }
 
 export default http;

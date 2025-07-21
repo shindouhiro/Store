@@ -21,7 +21,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialValues, onFinish, load
       try {
         const response = await getAllCategories();
         console.log(response);
-        setCategories(response);
+        setCategories(response.data);
       } catch (error) {
         console.error('获取分类失败:', error);
       }
