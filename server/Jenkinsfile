@@ -11,7 +11,6 @@ pipeline {
                 checkout scm
                 sh 'node -v'
                 sh 'npm -v'
-                sh 'docker --version'
             }
         }
         
