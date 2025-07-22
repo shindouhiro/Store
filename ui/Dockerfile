@@ -22,24 +22,7 @@ COPY . .
 # 构建应用
 RUN pnpm run build
 
-# Production stage
-FROM nginx:alpine AS production
-
-# 复制构建产物到 Nginx 目录
-COPY --from=builder /app/dist/public /usr/share/nginx/html
-
-# 复制自定义 Nginx 配置
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# 安装curl用于健康检查
-RUN apk add --no-cache curl
-
-# 暴露端口
-EXPOSE 80
-
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost || exit 1
-
-# 启动 Nginx
-CMD ["nginx", "-g", "daemon off;"] 
+# 只导出静态资源
+FROM alpine AS export
+WORKDIR /export
+COPY --from=builder /app/dist/public ./ 

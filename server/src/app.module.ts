@@ -9,13 +9,15 @@ import { CategoryModule } from './category/category.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: 'mysql',           // 容器内服务名
       port: 3306,
-      username: 'root',
-      password: 'root',
+      username: 'nest_user',
+      password: 'nest_password',
       database: 'nest_demo',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // 开发环境使用，生产环境请关闭
+      synchronize: process.env.NODE_ENV !== 'production',
+      logging: process.env.NODE_ENV !== 'production',
+      autoLoadEntities: true,
     }),
     AuthModule,
     UserModule,

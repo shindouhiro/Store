@@ -58,11 +58,12 @@ docker-compose -f docker-compose.production.yml logs -f
 
 ```env
 # Database Configuration
-DB_HOST=mysql
-DB_PORT=3306
-DB_USERNAME=root
-DB_PASSWORD=your_secure_password
-DB_DATABASE=nest_demo
+DB_ROOT_PASSWORD=your_root_password    # MySQL root用户密码
+DB_USERNAME=nest_user                  # 应用使用的数据库用户
+DB_PASSWORD=your_secure_password       # 应用数据库用户的密码
+DB_DATABASE=nest_demo                  # 数据库名称
+DB_HOST=mysql                          # 使用服务名
+DB_PORT=3306                          # 数据库端口
 
 # Redis Configuration
 REDIS_HOST=redis
@@ -72,22 +73,51 @@ REDIS_PORT=6379
 NODE_ENV=production
 
 # Next.js Admin Configuration
-NEXT_PUBLIC_API_URL=http://localhost:3000
+# 客户端API地址（浏览器访问用）- 根据部署方式调整
+NEXT_PUBLIC_API_URL=http://localhost:3000  # 开发环境
+# NEXT_PUBLIC_API_URL=http://your-domain.com:3000  # 生产环境
+# NEXT_PUBLIC_API_URL=http://your-domain.com/api   # 使用Nginx代理
 ```
 
 ### 3. 服务访问
 
+**直接访问各服务**：
 - **后端API**: http://localhost:3000
-- **管理后台**: http://localhost:3001
+- **管理后台**: http://localhost:3001  
 - **前端UI**: http://localhost:80
-- **Nginx代理**: http://localhost:8080 (可选)
+
+**通过Nginx统一代理访问**：
+- **统一入口**: http://localhost:8080
+  - 前端UI: `http://localhost:8080/`
+  - 管理后台: `http://localhost:8080/admin/` 
+  - 后端API: `http://localhost:8080/api/`
+  - 健康检查: `http://localhost:8080/health`
+
+### 4. 部署方式选择
+
+#### 方式1：直接访问（开发/测试环境）
+```bash
+# 使用默认配置，各服务独立端口
+docker-compose -f docker-compose.production.yml up -d
+```
+
+#### 方式2：Nginx统一代理（推荐生产环境）
+```bash
+# 设置环境变量使用代理路径
+echo "NEXT_PUBLIC_API_URL=http://your-domain.com/api" > .env
+
+# 启动所有服务
+docker-compose -f docker-compose.production.yml up -d
+
+# 访问: http://your-domain.com:8080
+```
 
 ## 🔄 更新部署
 
-### 自动更新
+### 5. 自动更新
 每当推送代码到主分支时，对应的服务会自动重新构建和部署。
 
-### 手动更新
+### 6. 手动更新
 ```bash
 # 拉取最新镜像
 docker-compose -f docker-compose.production.yml pull
@@ -101,7 +131,7 @@ docker-compose -f docker-compose.production.yml up -d --no-deps server
 
 ## 🏗️ 本地开发构建
 
-### 构建单个项目
+### 7. 构建单个项目
 ```bash
 # 构建server
 pnpm run build:server
@@ -113,7 +143,7 @@ pnpm run build:admin
 pnpm run build:ui
 ```
 
-### 本地Docker构建
+### 8. 本地Docker构建
 ```bash
 # 构建server镜像
 docker build -t storeserver:local ./server
@@ -127,12 +157,12 @@ docker build -t storeui:local ./ui
 
 ## 📊 监控和日志
 
-### 健康检查
+### 9. 健康检查
 所有服务都配置了健康检查：
 - 自动重启不健康的容器
 - 依赖关系确保启动顺序
 
-### 日志查看
+### 10. 日志查看
 ```bash
 # 查看所有服务日志
 docker-compose -f docker-compose.production.yml logs -f
@@ -145,7 +175,7 @@ docker-compose -f docker-compose.production.yml logs -f ui
 
 ## 🛠️ 故障排除
 
-### 常见问题
+### 11. 常见问题
 
 1. **数据库连接失败**
    - 检查MySQL容器是否正常启动
@@ -159,7 +189,7 @@ docker-compose -f docker-compose.production.yml logs -f ui
    - 验证Docker Hub凭据
    - 检查网络连接
 
-### 清理资源
+### 12. 清理资源
 ```bash
 # 停止并删除所有服务
 docker-compose -f docker-compose.production.yml down

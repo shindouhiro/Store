@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: test-mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: nest_demo
+      MYSQL_USER: nest_user
+      MYSQL_PASSWORD: nest_password
+    ports:
+      - "3307:3306"
+    networks:
+      - test_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 30s
+
+  server:
+    image: shindouhiro/storeserver:latest
+    container_name: test-server
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=nest_user
+      - DB_PASSWORD=nest_password
+      - DB_DATABASE=nest_demo
+    ports:
+      - "3002:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - test_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  test_network:
+    driver: bridge
