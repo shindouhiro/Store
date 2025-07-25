@@ -9,11 +9,11 @@ import { CategoryModule } from './category/category.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: process.env.DB_HOST || 'mysql',
-      port: Number(process.env.DB_PORT) || 3306,
-      username: process.env.DB_USERNAME || 'nest_user',
-      password: process.env.DB_PASSWORD || 'nest_password',
-      database: process.env.DB_DATABASE || 'nest_demo',
+      host: 'mysql',
+      port: 3306,
+      username: 'nest_user',
+      password: 'nest_password',
+      database: 'nest_demo',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV !== 'production',
@@ -25,4 +25,4 @@ import { CategoryModule } from './category/category.module';
     CategoryModule,
   ],
 })
-export class AppModule {} 
+export class AppModule { } 
