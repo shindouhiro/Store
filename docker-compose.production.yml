@@ -32,6 +32,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      -
     ports:
       - "3000:3000"
     depends_on:
@@ -53,6 +54,11 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USERNAME=nest_user
+      - DB_PASSWORD=nest_password
+      - DB_DATABASE=nest_demo
       # 客户端API地址 - 浏览器访问用
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3000}
       # 服务端API地址 - SSR时使用
