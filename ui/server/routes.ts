@@ -9,6 +9,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/products", async (_req, res) => {
     try {
       const products = await storage.getProducts();
+      console.log(products,'products')
       res.json(products);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch products" });
@@ -63,6 +64,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(products);
     } catch (error) {
       res.status(500).json({ message: "Failed to search products" });
+    }
+  });
+
+  // Get all categories
+  app.get("/api/categories", async (_req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch categories" });
+    }
+  });
+
+  // Get active categories
+  app.get("/api/categories/active", async (_req, res) => {
+    try {
+      const categories = await storage.getActiveCategories();
+      res.json(categories);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch active categories" });
     }
   });
 

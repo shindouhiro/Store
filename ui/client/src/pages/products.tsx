@@ -8,46 +8,82 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { Product } from "@shared/schema";
 
+// 分类接口类型定义
+interface Category {
+  id: number;
+  name: string;
+  description?: string;
+  icon?: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function Products() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
-  const { data: products, isLoading } = useQuery<Product[]>({
-    queryKey: ["/api/products"],
+  // 获取分类数据
+  const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
   });
-  console.log(products);
 
+  // 根据当前选中的分类获取产品
+  const { data: products, isLoading } = useQuery<{ data: Product[] }>({
+    queryKey: ["/api/products", activeFilter, searchQuery],
+    queryFn: async () => {
+      if (activeFilter === "all") {
+        const response = await fetch("/api/products");
+        const data = await response.json();
+        return data;
+      } else {
+        // 找到对应的分类ID
+        const category = categories?.find(cat => cat.name.toLowerCase() === activeFilter);
+        if (category) {
+          const response = await fetch(`/api/products/category/${category.id}`);
+          const data = await response.json();
+          return data;
+        }
+        return { data: [] };
+      }
+    },
+    enabled: activeFilter === "all" || !!categories,
+  });
+
+  console.log(products);
+  console.log(categories);
+
+  // 构建分类按钮数据
   const filterButtons = [
     { label: "All Products", value: "all" },
-    { label: "Athletic", value: "athletic" },
-    { label: "Casual", value: "casual" },
-    { label: "Dress", value: "dress" },
+    ...(categories?.filter(cat => cat.isActive).map(cat => ({
+      label: cat.name,
+      value: cat.name.toLowerCase(),
+      id: cat.id
+    })) || [])
   ];
+  console.log(filterButtons);
 
   useEffect(() => {
     if (!products) return;
 
-    let filtered = products;
-
-    // Apply category filter
-    if (activeFilter !== "all") {
-      filtered = filtered.filter(product => product.category === activeFilter);
-    }
+    let filtered = products.data;
 
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(product =>
+      filtered = filtered.filter((product: Product) =>
         product.name.toLowerCase().includes(query) ||
         product.description.toLowerCase().includes(query) ||
-        product.category.toLowerCase().includes(query) ||
-        (product.tags && product.tags.some(tag => tag.toLowerCase().includes(query)))
+        (product.category && product.category.toLowerCase().includes(query)) ||
+        (product.tags && product.tags.some((tag: string) => tag.toLowerCase().includes(query)))
       );
     }
 
     setFilteredProducts(filtered);
-  }, [products, activeFilter, searchQuery]);
+  }, [products, searchQuery]);
 
   // Get URL params for initial filter
   useEffect(() => {
@@ -56,7 +92,14 @@ export default function Products() {
     if (category && filterButtons.some(btn => btn.value === category)) {
       setActiveFilter(category);
     }
-  }, []);
+  }, [filterButtons]);
+  console.log(filteredProducts,'filteredProducts')
+
+  // 处理分类按钮点击
+  const handleCategoryClick = (categoryValue: string) => {
+    setActiveFilter(categoryValue);
+    setSearchQuery(""); // 清空搜索框
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -97,7 +140,7 @@ export default function Products() {
             {filterButtons.map((button) => (
               <Button
                 key={button.value}
-                onClick={() => setActiveFilter(button.value)}
+                onClick={() => handleCategoryClick(button.value)}
                 variant={activeFilter === button.value ? "default" : "outline"}
                 className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 ${
                   activeFilter === button.value
@@ -169,7 +212,7 @@ export default function Products() {
             className="text-center mt-12"
           >
             <p className="text-gray-600">
-              Showing {filteredProducts.length} of {products?.length || 0} products
+              Showing {filteredProducts.length} of {products?.data?.length || 0} products
             </p>
           </motion.div>
         )}

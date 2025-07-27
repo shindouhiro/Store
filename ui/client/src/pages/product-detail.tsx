@@ -5,6 +5,7 @@ import { ArrowLeft, Star, CheckCircle, Mail, Download, Shield, Truck, Award } fr
 import { fadeIn, fadeInUp, slideInLeft, slideInRight } from "@/lib/animations";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { formatCategoryName, getCategoryColors } from "@/lib/utils";
 import type { Product } from "@shared/schema";
 
 export default function ProductDetail() {
@@ -46,11 +47,7 @@ export default function ProductDetail() {
   const specifications = JSON.parse(product.specifications || "{}");
   const rating = parseFloat(product.rating || "0");
 
-  const categoryColors = {
-    athletic: "bg-blue-100 text-blue-800",
-    casual: "bg-green-100 text-green-800",
-    dress: "bg-purple-100 text-purple-800",
-  };
+
 
   const features = [
     { icon: Shield, title: "Quality Guarantee", description: "Premium materials and craftsmanship" },
@@ -101,8 +98,8 @@ export default function ProductDetail() {
             className="space-y-6"
           >
             {/* Category Badge */}
-            <Badge className={`${categoryColors[product.category as keyof typeof categoryColors]} px-3 py-1 text-sm font-semibold`}>
-              {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+            <Badge className={`${getCategoryColors(product.category)} px-3 py-1 text-sm font-semibold`}>
+              {formatCategoryName(product.category)}
             </Badge>
 
             {/* Product Name */}

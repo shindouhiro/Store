@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Eye, Mail, Star } from "lucide-react";
 import type { Product } from "@shared/schema";
 import { scaleIn, hoverScale } from "@/lib/animations";
+import { formatCategoryName, getCategoryColors, getCategoryButtonColors } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
@@ -10,17 +11,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
-  const categoryColors = {
-    athletic: "text-blue-600 bg-blue-100",
-    casual: "text-green-600 bg-green-100",
-    dress: "text-purple-600 bg-purple-100",
-  };
-
-  const buttonColors = {
-    athletic: "bg-blue-600 hover:bg-blue-700",
-    casual: "bg-green-600 hover:bg-green-700",
-    dress: "bg-purple-600 hover:bg-purple-700",
-  };
 
   const specifications = product.specifications || "{}";
   const rating = parseFloat(product.rating || "0");
@@ -65,8 +55,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
       <div className="p-6">
         <div className="flex items-center justify-between mb-2">
-          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${categoryColors[product.category as keyof typeof categoryColors]}`}>
-            {product.category.charAt(0).toUpperCase() + product.category.slice(1)}
+          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getCategoryColors(product.category)}`}>
+            {formatCategoryName(product.category)}
           </span>
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
@@ -89,7 +79,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               variants={hoverScale}
               whileHover="whileHover"
               whileTap="whileTap"
-              className={`px-4 py-2 rounded-full font-semibold text-white transition-colors duration-300 cursor-pointer ${buttonColors[product.category as keyof typeof buttonColors]}`}
+              className={`px-4 py-2 rounded-full font-semibold text-white transition-colors duration-300 cursor-pointer ${getCategoryButtonColors(product.category)}`}
             >
               <Mail className="inline mr-1" size={16} />
               Inquire

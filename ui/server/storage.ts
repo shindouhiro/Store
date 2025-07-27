@@ -1,4 +1,4 @@
-import { products, inquiries, users, type Product, type InsertProduct, type Inquiry, type InsertInquiry, type User, type InsertUser } from "@shared/schema";
+import { products, inquiries, users, categories, type Product, type InsertProduct, type Inquiry, type InsertInquiry, type User, type InsertUser, type Category, type InsertCategory } from "@shared/schema";
 
 export interface IStorage {
   // User methods
@@ -13,6 +13,12 @@ export interface IStorage {
   searchProducts(query: string): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
   
+  // Category methods
+  getCategories(): Promise<Category[]>;
+  getActiveCategories(): Promise<Category[]>;
+  getCategory(id: number): Promise<Category | undefined>;
+  createCategory(category: InsertCategory): Promise<Category>;
+  
   // Inquiry methods
   createInquiry(inquiry: InsertInquiry): Promise<Inquiry>;
   getInquiries(): Promise<Inquiry[]>;
@@ -21,21 +27,56 @@ export interface IStorage {
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
   private products: Map<number, Product>;
+  private categories: Map<number, Category>;
   private inquiries: Map<number, Inquiry>;
   private currentUserId: number;
   private currentProductId: number;
+  private currentCategoryId: number;
   private currentInquiryId: number;
 
   constructor() {
     this.users = new Map();
     this.products = new Map();
+    this.categories = new Map();
     this.inquiries = new Map();
     this.currentUserId = 1;
     this.currentProductId = 1;
+    this.currentCategoryId = 1;
     this.currentInquiryId = 1;
     
-    // Initialize with sample products
+    // Initialize with sample data
+    this.initializeSampleCategories();
     this.initializeSampleProducts();
+  }
+
+  private initializeSampleCategories() {
+    const sampleCategories: InsertCategory[] = [
+      {
+        name: "Athletic",
+        description: "Performance-driven footwear for sports enthusiasts and active lifestyles",
+        icon: "🏃‍♂️",
+        isActive: true,
+        sortOrder: 1,
+      },
+      {
+        name: "Casual",
+        description: "Comfortable and stylish footwear for everyday adventures",
+        icon: "👟",
+        isActive: true,
+        sortOrder: 2,
+      },
+      {
+        name: "Dress",
+        description: "Sophisticated formal footwear crafted with premium leather",
+        icon: "👞",
+        isActive: true,
+        sortOrder: 3,
+      },
+    ];
+
+    sampleCategories.forEach(category => {
+      this.createCategory(category);
+    });
   }
 
   private initializeSampleProducts() {
@@ -220,7 +261,7 @@ export class MemStorage implements IStorage {
 
   async getProductsByCategory(category: string): Promise<Product[]> {
     return Array.from(this.products.values()).filter(
-      product => product.category === category
+      product => product.category && product.category === category
     );
   }
 
@@ -229,16 +270,55 @@ export class MemStorage implements IStorage {
     return Array.from(this.products.values()).filter(product =>
       product.name.toLowerCase().includes(lowercaseQuery) ||
       product.description.toLowerCase().includes(lowercaseQuery) ||
-      product.category.toLowerCase().includes(lowercaseQuery) ||
+      (product.category && product.category.toLowerCase().includes(lowercaseQuery)) ||
       (product.tags && product.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery)))
     );
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
     const id = this.currentProductId++;
-    const product: Product = { ...insertProduct, id };
+    const product: Product = { 
+      ...insertProduct, 
+      id,
+      features: insertProduct.features || null,
+      inStock: insertProduct.inStock ?? true,
+      rating: insertProduct.rating || null,
+      reviewCount: insertProduct.reviewCount || null,
+      tags: insertProduct.tags || null,
+    };
     this.products.set(id, product);
     return product;
+  }
+
+  // Category methods
+  async getCategories(): Promise<Category[]> {
+    return Array.from(this.categories.values());
+  }
+
+  async getActiveCategories(): Promise<Category[]> {
+    return Array.from(this.categories.values()).filter(
+      category => category.isActive
+    );
+  }
+
+  async getCategory(id: number): Promise<Category | undefined> {
+    return this.categories.get(id);
+  }
+
+  async createCategory(insertCategory: InsertCategory): Promise<Category> {
+    const id = this.currentCategoryId++;
+    const category: Category = { 
+      ...insertCategory, 
+      id,
+      description: insertCategory.description || null,
+      icon: insertCategory.icon || null,
+      isActive: insertCategory.isActive ?? true,
+      sortOrder: insertCategory.sortOrder || null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.categories.set(id, category);
+    return category;
   }
 
   // Inquiry methods

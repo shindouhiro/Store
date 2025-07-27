@@ -8,42 +8,66 @@ import { fadeInUp, staggerContainer } from "@/lib/animations";
 import { ArrowRight, Crown, Terminal, Users } from "lucide-react";
 import type { Product } from "@shared/schema";
 
+// 分类接口类型定义
+interface Category {
+  id: number;
+  name: string;
+  description?: string;
+  icon?: string;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function Home() {
   const { data: products, isLoading } = useQuery<Product[]>({
     queryKey: ["/api/products"],
   });
 
+  // 获取分类数据
+  const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+  });
+
   const featuredProducts = products?.slice(0, 6) || [];
 
-  const categories = [
-    {
-      title: "Athletic Shoes",
-      description: "Performance-driven footwear for sports enthusiasts and active lifestyles. Premium materials and cutting-edge technology.",
-      icon: Terminal,
-      gradient: "from-blue-500 to-cyan-500",
-      color: "text-blue-600",
-      image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-      category: "athletic"
-    },
-    {
-      title: "Casual Shoes",
-      description: "Comfortable and stylish footwear for everyday adventures. Perfect blend of fashion and functionality for modern lifestyles.",
-      icon: Users,
-      gradient: "from-green-500 to-emerald-500",
-      color: "text-green-600",
-      image: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-      category: "casual"
-    },
-    {
-      title: "Dress Shoes",
-      description: "Sophisticated formal footwear crafted with premium leather. Essential for business professionals and formal occasions.",
-      icon: Crown,
-      gradient: "from-purple-500 to-indigo-500",
-      color: "text-purple-600",
-      image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
-      category: "dress"
-    }
-  ];
+  // 构建分类数据
+  const categoryData = categories?.filter(cat => cat.isActive).map(cat => {
+    const iconMap = {
+      'Athletic': Terminal,
+      'Casual': Users,
+      'Dress': Crown,
+    };
+    
+    const gradientMap = {
+      'Athletic': "from-blue-500 to-cyan-500",
+      'Casual': "from-green-500 to-emerald-500",
+      'Dress': "from-purple-500 to-indigo-500",
+    };
+    
+    const colorMap = {
+      'Athletic': "text-blue-600",
+      'Casual': "text-green-600",
+      'Dress': "text-purple-600",
+    };
+    
+    const imageMap = {
+      'Athletic': "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+      'Casual': "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+      'Dress': "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+    };
+
+    return {
+      title: `${cat.name} Shoes`,
+      description: cat.description || `Premium ${cat.name.toLowerCase()} footwear for every occasion.`,
+      icon: iconMap[cat.name as keyof typeof iconMap] || Terminal,
+      gradient: gradientMap[cat.name as keyof typeof gradientMap] || "from-gray-500 to-gray-600",
+      color: colorMap[cat.name as keyof typeof colorMap] || "text-gray-600",
+      image: imageMap[cat.name as keyof typeof imageMap] || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600",
+      category: cat.name.toLowerCase()
+    };
+  }) || [];
 
   return (
     <div className="min-h-screen">
@@ -78,7 +102,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="grid md:grid-cols-3 gap-8"
           >
-            {categories.map((category, index) => {
+            {categoryData.map((category, index) => {
               const IconComponent = category.icon;
               return (
                 <motion.div
