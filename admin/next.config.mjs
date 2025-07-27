@@ -5,7 +5,9 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:3000/:path*'
+        destination: process.env.NODE_ENV === 'production' 
+          ? 'http://server:3000/:path*'  // Docker生产环境
+          : 'http://localhost:3000/:path*'  // 开发环境
       }
     ];
   }
