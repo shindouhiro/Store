@@ -10,7 +10,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const products = await storage.getProducts();
       console.log(products,'products')
-      res.json(products);
+      res.json({ data: products });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch products" });
     }
@@ -46,7 +46,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const products = await storage.getProductsByCategory(category);
-      res.json(products);
+      res.json({ data: products });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch products by category" });
     }
@@ -61,7 +61,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const products = await storage.searchProducts(decodeURIComponent(query));
-      res.json(products);
+      res.json({ data: products });
     } catch (error) {
       res.status(500).json({ message: "Failed to search products" });
     }
@@ -71,7 +71,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/categories", async (_req, res) => {
     try {
       const categories = await storage.getCategories();
-      res.json(categories);
+      res.json({ data: categories });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch categories" });
     }
@@ -81,7 +81,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/categories/active", async (_req, res) => {
     try {
       const categories = await storage.getActiveCategories();
-      res.json(categories);
+      res.json({ data: categories });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch active categories" });
     }

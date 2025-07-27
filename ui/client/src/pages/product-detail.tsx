@@ -1,21 +1,70 @@
 import { motion } from "framer-motion";
 import { useParams, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Star, CheckCircle, Mail, Download, Shield, Truck, Award } from "lucide-react";
+import { ArrowLeft, Star, CheckCircle, Mail, Download, Shield, Truck, Award, Play, Pause } from "lucide-react";
 import { fadeIn, fadeInUp, slideInLeft, slideInRight } from "@/lib/animations";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCategoryName, getCategoryColors } from "@/lib/utils";
 import type { Product } from "@shared/schema";
+import { useState, useRef } from "react";
+
+// OSS基础URL
+const OSS_BASE_URL = 'https://dulizha.oss-cn-shanghai.aliyuncs.com/';
+
+// 获取完整的图片URL
+const getFullImageUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return `${OSS_BASE_URL}${url}`;
+};
+
+// 获取完整的视频URL
+const getFullVideoUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return `${OSS_BASE_URL}${url}`;
+};
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const productId = parseInt(id || "0");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const { data: product, isLoading, error } = useQuery<Product>({
     queryKey: [`/api/products/${productId}`],
     enabled: !!productId,
   });
+
+  // 处理视频播放/暂停
+  const handleVideoToggle = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  // 视频事件处理
+  const handleVideoPlay = () => setIsPlaying(true);
+  const handleVideoPause = () => setIsPlaying(false);
+  const handleVideoEnded = () => setIsPlaying(false);
+  const handleVideoLoadStart = () => setIsVideoLoading(true);
+  const handleVideoCanPlay = () => setIsVideoLoading(false);
+  const handleVideoError = () => {
+    setIsVideoLoading(false);
+    setVideoError(true);
+  };
 
   if (isLoading) {
     return (
@@ -74,19 +123,63 @@ export default function ProductDetail() {
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-12">
-          {/* Product Image */}
+          {/* Product Image/Video */}
           <motion.div
             variants={slideInLeft}
             initial="initial"
             animate="animate"
             className="space-y-4"
           >
-            <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl">
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
+            <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl relative">
+              {product.videoUrl && product.videoUrl.trim() !== '' ? (
+                <>
+                  <video
+                    ref={videoRef}
+                    src={getFullVideoUrl(product.videoUrl)}
+                    className="w-full h-full object-cover"
+                    onPlay={handleVideoPlay}
+                    onPause={handleVideoPause}
+                    onEnded={handleVideoEnded}
+                    onLoadStart={handleVideoLoadStart}
+                    onCanPlay={handleVideoCanPlay}
+                    onError={handleVideoError}
+                    loop
+                  />
+                  {/* 视频播放控制按钮 */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    {isVideoLoading ? (
+                      <div className="bg-black bg-opacity-50 rounded-full p-4">
+                        <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      </div>
+                    ) : videoError ? (
+                      <div className="bg-red-500 bg-opacity-50 rounded-full p-4">
+                        <span className="text-white text-sm">视频加载失败</span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleVideoToggle}
+                        className="bg-black bg-opacity-50 hover:bg-opacity-70 rounded-full p-4 transition-all duration-300 transform hover:scale-110"
+                      >
+                        {isPlaying ? (
+                          <Pause className="text-white" size={32} fill="white" />
+                        ) : (
+                          <Play className="text-white" size={32} fill="white" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  {/* 视频标识 */}
+                  <div className="absolute top-4 left-4 bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                    Video
+                  </div>
+                </>
+              ) : (
+                <img
+                  src={getFullImageUrl(product.imageUrl)}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
           </motion.div>
 

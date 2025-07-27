@@ -9,6 +9,7 @@ export const products = pgTable("products", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   category: text("category").notNull(), // 'athletic', 'casual', 'dress'
   imageUrl: text("image_url").notNull(),
+  videoUrl: text("video_url"), // 视频URL
   features: text("features").array(),
   specifications: text("specifications").notNull(), // JSON string
   inStock: boolean("in_stock").default(true),

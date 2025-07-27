@@ -8,6 +8,27 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { Product } from "@shared/schema";
 
+// OSS基础URL
+const OSS_BASE_URL = 'https://dulizha.oss-cn-shanghai.aliyuncs.com/';
+
+// 获取完整的图片URL
+const getFullImageUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return `${OSS_BASE_URL}${url}`;
+};
+
+// 获取完整的视频URL
+const getFullVideoUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return `${OSS_BASE_URL}${url}`;
+};
+
 // 分类接口类型定义
 interface Category {
   id: number;
@@ -26,7 +47,7 @@ export default function Products() {
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
   // 获取分类数据
-  const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
+  const { data: categories, isLoading: categoriesLoading } = useQuery<{ data: Category[] }>({
     queryKey: ["/api/categories"],
   });
 
@@ -40,7 +61,7 @@ export default function Products() {
         return data;
       } else {
         // 找到对应的分类ID
-        const category = categories?.find(cat => cat.name.toLowerCase() === activeFilter);
+        const category = categories?.data?.find(cat => cat.name.toLowerCase() === activeFilter);
         if (category) {
           const response = await fetch(`/api/products/category/${category.id}`);
           const data = await response.json();
@@ -58,7 +79,7 @@ export default function Products() {
   // 构建分类按钮数据
   const filterButtons = [
     { label: "All Products", value: "all" },
-    ...(categories?.filter(cat => cat.isActive).map(cat => ({
+    ...(categories?.data?.filter(cat => cat.isActive).map(cat => ({
       label: cat.name,
       value: cat.name.toLowerCase(),
       id: cat.id

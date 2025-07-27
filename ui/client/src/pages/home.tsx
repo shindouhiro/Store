@@ -21,19 +21,21 @@ interface Category {
 }
 
 export default function Home() {
-  const { data: products, isLoading } = useQuery<Product[]>({
+  const { data: products, isLoading } = useQuery<{ data: Product[] }>({
     queryKey: ["/api/products"],
   });
 
   // 获取分类数据
-  const { data: categories, isLoading: categoriesLoading } = useQuery<Category[]>({
+  const { data: categories, isLoading: categoriesLoading } = useQuery<{ data: Category[] }>({
     queryKey: ["/api/categories"],
   });
+  console.log(products,'products')
 
-  const featuredProducts = products?.slice(0, 6) || [];
+  const featuredProducts = products?.data || [];
+  console.log(categories,'categories')
 
   // 构建分类数据
-  const categoryData = categories?.filter(cat => cat.isActive).map(cat => {
+  const categoryData = categories?.data?.filter(cat => cat.isActive).map(cat => {
     const iconMap = {
       'Athletic': Terminal,
       'Casual': Users,

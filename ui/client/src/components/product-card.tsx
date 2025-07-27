@@ -1,9 +1,30 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { Eye, Mail, Star } from "lucide-react";
+import { Eye, Mail, Star, Play } from "lucide-react";
 import type { Product } from "@shared/schema";
 import { scaleIn, hoverScale } from "@/lib/animations";
 import { formatCategoryName, getCategoryColors, getCategoryButtonColors } from "@/lib/utils";
+
+// OSS基础URL
+const OSS_BASE_URL = 'https://dulizha.oss-cn-shanghai.aliyuncs.com/';
+
+// 获取完整的图片URL
+const getFullImageUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return `${OSS_BASE_URL}${url}`;
+};
+
+// 获取完整的视频URL
+const getFullVideoUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  return `${OSS_BASE_URL}${url}`;
+};
 
 interface ProductCardProps {
   product: Product;
@@ -25,18 +46,35 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       className="product-card group bg-white rounded-2xl shadow-lg overflow-hidden"
     >
       <div className="relative overflow-hidden">
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          className="w-full h-64 object-cover"
-        />
-        
-        {/* Badges */}
-        {product.inStock && (
-          <div className="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
-            In Stock
+        {/* 显示图片或视频封面 */}
+        {product.videoUrl && product.videoUrl.trim() !== '' ? (
+          <div className="relative">
+            <video
+              src={getFullVideoUrl(product.videoUrl)}
+              className="w-full h-64 object-cover"
+              muted
+              onLoadedData={(e) => {
+                // 设置视频第一帧作为封面
+                const video = e.target as HTMLVideoElement;
+                video.currentTime = 0.1;
+              }}
+            />
+            {/* 视频播放按钮 */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="bg-black bg-opacity-50 rounded-full p-3">
+                <Play className="text-white" size={24} fill="white" />
+              </div>
+            </div>
           </div>
+        ) : (
+          <img
+            src={getFullImageUrl(product.imageUrl)}
+            alt={product.name}
+            className="w-full h-64 object-cover"
+          />
         )}
+        
+    
         
         {/* Hover Overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
