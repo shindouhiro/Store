@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Category } from '../../category/entities/category.entity';
 
 @Entity('products')
 export class Product {
@@ -19,13 +20,18 @@ export class Product {
   @ApiProperty({ description: '价格' })
   price: string;
 
-  @ManyToOne('Category', 'products', { eager: true })
+  @ManyToOne(() => Category, category => category.products, { eager: true })
+  @JoinColumn({ name: 'categoryId' })
   @ApiProperty({ description: '分类' })
-  category: any;
+  category: Category;
 
   @Column('varchar')
   @ApiProperty({ description: '图片URL' })
   imageUrl: string;
+
+  @Column('varchar', { nullable: true })
+  @ApiProperty({ description: '视频URL' })
+  videoUrl: string;
 
   @Column('simple-array')
   @ApiProperty({ description: '产品特性', type: [String] })

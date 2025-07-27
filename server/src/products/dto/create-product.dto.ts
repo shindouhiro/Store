@@ -24,6 +24,11 @@ export class CreateProductDto {
   @IsString()
   imageUrl: string;
 
+  @ApiProperty({ description: '视频URL', required: false })
+  @IsOptional()
+  @IsString()
+  videoUrl?: string;
+
   @ApiProperty({ description: '产品特性', type: [String] })
   @IsArray()
   @IsString({ each: true })

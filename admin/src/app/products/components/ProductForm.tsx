@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react';
 import { ProForm, ProFormText, ProFormTextArea, ProFormDigit, ProFormSelect, ProFormSwitch } from '@ant-design/pro-components';
 import { message, Upload, Button, Image, Space, Modal } from 'antd';
-import { PlusOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, EyeOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { Product, CreateProductDto, UpdateProductDto } from '@/services/product';
 import { getAllCategories, Category } from '@/services/category';
-import { uploadToOSS, uploadMultipleToOSS } from '@/services/oss';
+import { uploadToOSS, uploadMultipleToOSS, uploadVideoToOSS } from '@/services/oss';
 
 // 后端DTO接口
 interface BackendProductDto {
@@ -15,6 +15,7 @@ interface BackendProductDto {
   price: string;
   categoryId: number;
   imageUrl: string;
+  videoUrl?: string;
   features: string[];
   specifications: string;
   inStock: boolean;
@@ -41,6 +42,17 @@ const getFullImageUrl = (url: string) => {
   return fullUrl;
 };
 
+// 获取完整的视频URL
+const getFullVideoUrl = (url: string) => {
+  if (!url) return '';
+  // 如果URL已经是完整的HTTP/HTTPS链接，直接返回
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  // 否则拼接OSS基础URL和objectName
+  return `${OSS_BASE_URL}${url}`;
+};
+
 interface ProductFormProps {
   initialValues?: Product;
   onFinish: (values: CreateProductDto | UpdateProductDto | BackendProductDto) => Promise<void>;
@@ -49,11 +61,13 @@ interface ProductFormProps {
 
 const ProductForm: React.FC<ProductFormProps> = ({ initialValues, onFinish, loading }) => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [mainImage, setMainImage] = useState<string>(initialValues?.mainImage || '');
   const [images, setImages] = useState<string[]>(initialValues?.images || []);
+  const [videoUrl, setVideoUrl] = useState<string>(initialValues?.videoUrl || '');
   const [uploading, setUploading] = useState(false);
+  const [videoUploading, setVideoUploading] = useState(false);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
+  const [videoPreviewVisible, setVideoPreviewVisible] = useState(false);
 
   useEffect(() => {
     // 获取分类列表
@@ -69,17 +83,22 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialValues, onFinish, load
     fetchCategories();
   }, []);
 
-  // 处理主图上传
-  const handleMainImageUpload = async (file: File) => {
-    setUploading(true);
+  // 处理视频上传
+  const handleVideoUpload = async (file: File) => {
+    setVideoUploading(true);
     try {
-      const result = await uploadToOSS(file);
-      setMainImage(result.objectName);
-      message.success('主图上传成功');
-    } catch {
-      message.error('主图上传失败');
+      console.log('开始上传视频:', file.name, '大小:', file.size, '类型:', file.type);
+      
+      const result = await uploadVideoToOSS(file);
+      console.log('视频上传成功:', result);
+      
+      setVideoUrl(result.objectName);
+      message.success('视频上传成功');
+    } catch (error: any) {
+      console.error('视频上传失败:', error);
+      message.error(`视频上传失败: ${error.message || '未知错误'}`);
     } finally {
-      setUploading(false);
+      setVideoUploading(false);
     }
   };
 
@@ -104,10 +123,20 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialValues, onFinish, load
     setImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  // 删除视频
+  const handleRemoveVideo = () => {
+    setVideoUrl('');
+  };
+
   // 预览图片
   const handlePreview = (url: string) => {
     setPreviewImage(getFullImageUrl(url));
     setPreviewVisible(true);
+  };
+
+  // 预览视频
+  const handleVideoPreview = () => {
+    setVideoPreviewVisible(true);
   };
 
   const handleFinish = async (values: CreateProductDto | UpdateProductDto) => {
@@ -118,7 +147,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialValues, onFinish, load
         description: values.description || '',
         price: values.price?.toString() || '0',
         categoryId: values.categoryId,
-        imageUrl: mainImage || '',
+        imageUrl: images.length > 0 ? images[0] : '', // 使用第一张图片作为主图
+        videoUrl: videoUrl || undefined,
         features: images.length > 0 ? images : [],
         specifications: values.description || '',
         inStock: (values.stock || 0) > 0,
@@ -258,32 +288,63 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialValues, onFinish, load
         />
       </ProForm.Group>
 
-      {/* 主图上传 */}
+      {/* 视频上传 */}
       <div style={{ marginBottom: 24 }}>
-        <div style={{ marginBottom: 8, fontWeight: 500 }}>主图</div>
+        <div style={{ marginBottom: 8, fontWeight: 500 }}>商品视频</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          {mainImage && (
-            <Image
-              width={100}
-              height={100}
-              src={getFullImageUrl(mainImage)}
-              alt="主图"
-              style={{ objectFit: 'cover' }}
-              fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxN"
-            />
+          {videoUrl && (
+            <div style={{ position: 'relative' }}>
+              <video
+                width={200}
+                height={150}
+                src={getFullVideoUrl(videoUrl)}
+                controls
+                style={{ objectFit: 'cover', borderRadius: 4 }}
+              />
+              <Button
+                type="text"
+                icon={<PlayCircleOutlined />}
+                size="small"
+                style={{ position: 'absolute', top: 4, left: 4 }}
+                onClick={handleVideoPreview}
+              />
+              <Button
+                type="text"
+                icon={<DeleteOutlined />}
+                size="small"
+                danger
+                style={{ position: 'absolute', top: 4, right: 4 }}
+                onClick={handleRemoveVideo}
+              />
+            </div>
           )}
           <Upload
-            accept="image/*"
+            accept="video/*"
             showUploadList={false}
             beforeUpload={(file) => {
-              handleMainImageUpload(file);
+              // 检查文件大小 (100MB)
+              const isLt100M = file.size / 1024 / 1024 < 100;
+              if (!isLt100M) {
+                message.error('视频文件大小不能超过100MB!');
+                return false;
+              }
+              // 检查文件类型
+              const isVideo = file.type.startsWith('video/');
+              if (!isVideo) {
+                message.error('只能上传视频文件!');
+                return false;
+              }
+              handleVideoUpload(file);
               return false;
             }}
           >
-            <Button icon={<PlusOutlined />} loading={uploading}>
-              上传主图
+            <Button icon={<PlusOutlined />} loading={videoUploading}>
+              上传视频
             </Button>
           </Upload>
+        </div>
+        <div style={{ fontSize: 12, color: '#666', marginTop: 8 }}>
+          支持格式：MP4, AVI, MOV, WMV, FLV, WEBM, MKV，文件大小不超过100MB
         </div>
       </div>
 
@@ -347,6 +408,23 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialValues, onFinish, load
           src={previewImage}
           fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxN"
         />
+      </Modal>
+
+      {/* 视频预览模态框 */}
+      <Modal
+        open={videoPreviewVisible}
+        title="视频预览"
+        footer={null}
+        onCancel={() => setVideoPreviewVisible(false)}
+        width={800}
+      >
+        <video
+          controls
+          style={{ width: '100%' }}
+          src={getFullVideoUrl(videoUrl)}
+        >
+          您的浏览器不支持视频播放
+        </video>
       </Modal>
     </ProForm>
   );

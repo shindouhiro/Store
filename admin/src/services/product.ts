@@ -13,7 +13,7 @@ export interface Product {
     name: string;
   };
   images?: string[];
-  mainImage?: string;
+  videoUrl?: string;
   status: 'active' | 'inactive' | 'draft';
   isFeatured: boolean;
   isHot: boolean;
@@ -34,7 +34,7 @@ export interface CreateProductDto {
   stock: number;
   categoryId: number;
   images?: string[];
-  mainImage?: string;
+  videoUrl?: string;
   status?: 'active' | 'inactive' | 'draft';
   isFeatured?: boolean;
   isHot?: boolean;
@@ -53,7 +53,7 @@ export interface UpdateProductDto {
   stock?: number;
   categoryId?: number;
   images?: string[];
-  mainImage?: string;
+  videoUrl?: string;
   status?: 'active' | 'inactive' | 'draft';
   isFeatured?: boolean;
   isHot?: boolean;

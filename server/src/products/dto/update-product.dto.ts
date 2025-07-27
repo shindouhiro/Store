@@ -29,6 +29,11 @@ export class UpdateProductDto {
   @IsString()
   imageUrl?: string;
 
+  @ApiProperty({ description: '视频URL', required: false })
+  @IsOptional()
+  @IsString()
+  videoUrl?: string;
+
   @ApiProperty({ description: '产品特性', type: [String], required: false })
   @IsOptional()
   @IsArray()
