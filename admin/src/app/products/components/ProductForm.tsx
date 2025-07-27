@@ -6,7 +6,7 @@ import { message, Upload, Button, Image, Space, Modal } from 'antd';
 import { PlusOutlined, DeleteOutlined, EyeOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { Product, CreateProductDto, UpdateProductDto } from '@/services/product';
 import { getAllCategories, Category } from '@/services/category';
-import { uploadToOSS, uploadMultipleToOSS, uploadVideoToOSS } from '@/services/oss';
+import { uploadMultipleToOSS, uploadVideoToOSS } from '@/services/oss';
 
 // 后端DTO接口
 interface BackendProductDto {
@@ -94,9 +94,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ initialValues, onFinish, load
       
       setVideoUrl(result.objectName);
       message.success('视频上传成功');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('视频上传失败:', error);
-      message.error(`视频上传失败: ${error.message || '未知错误'}`);
+      const errorMessage = error instanceof Error ? error.message : '未知错误';
+      message.error(`视频上传失败: ${errorMessage}`);
     } finally {
       setVideoUploading(false);
     }

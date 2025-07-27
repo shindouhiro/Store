@@ -8,6 +8,22 @@ import { Product, getProductList, deleteProduct, toggleProductStatus, setProduct
 import ProductForm from './components/ProductForm';
 import { createProduct, updateProduct } from '@/services/product';
 
+// 后端DTO接口
+interface BackendProductDto {
+  name: string;
+  description: string;
+  price: string;
+  categoryId: number;
+  imageUrl: string;
+  videoUrl?: string;
+  features: string[];
+  specifications: string;
+  inStock: boolean;
+  rating: string;
+  reviewCount: number;
+  tags: string[];
+}
+
 // OSS基础URL
 const OSS_BASE_URL = 'https://dulizha.oss-cn-shanghai.aliyuncs.com/';
 
@@ -40,7 +56,7 @@ const ProductPage: React.FC = () => {
   const actionRef = useRef<ActionType>();
 
   // 处理表单提交
-  const handleFormSubmit = async (values: CreateProductDto | UpdateProductDto) => {
+  const handleFormSubmit = async (values: CreateProductDto | UpdateProductDto | BackendProductDto) => {
     setLoading(true);
     try {
       if (editingProduct) {
@@ -111,7 +127,7 @@ const ProductPage: React.FC = () => {
   };
 
   // 预览视频
-  const handleVideoPreview = (videoUrl: string) => {
+  const handleVideoPreview = (videoUrl: string | undefined) => {
     if (!videoUrl) return;
     setPreviewVideo(getFullVideoUrl(videoUrl));
     setVideoPreviewVisible(true);
