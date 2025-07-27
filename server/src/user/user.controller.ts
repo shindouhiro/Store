@@ -44,7 +44,7 @@ export class UserController {
       const { password, ...userInfo } = user;
       return {
         success: true,
-        data: userInfo,
+        ...userInfo,
         message: '获取用户信息成功'
       };
     } catch (error) {
