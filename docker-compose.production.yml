@@ -32,6 +32,10 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - OSS_REGION=${OSS_REGION:-oss-cn-shanghai}
+      - OSS_ACCESS_KEY_ID=${OSS_ACCESS_KEY_ID}
+      - OSS_ACCESS_KEY_SECRET=${OSS_ACCESS_KEY_SECRET}
+      - OSS_BUCKET=${OSS_BUCKET:-dulizha}
     ports:
       - "3000:3000"
     depends_on:
