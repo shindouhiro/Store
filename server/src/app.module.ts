@@ -6,6 +6,7 @@ import { ProductsModule } from './products/products.module';
 import { CategoryModule } from './category/category.module';
 import { OssModule } from './oss/oss.module';
 import { ConfigModule } from '@nestjs/config';
+import { getTypeOrmConfig } from './config/database.config';
 
 @Module({
   imports: [
@@ -13,18 +14,7 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
       envFilePath: '.env'
     }),
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.MYSQL_HOST,
-      port: Number(process.env.MYSQL_PORT),
-      username: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASSWORD,
-      database: process.env.MYSQL_DATABASE,
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: process.env.NODE_ENV !== 'production',
-      logging: process.env.NODE_ENV !== 'production',
-      autoLoadEntities: true,
-    }),
+    TypeOrmModule.forRoot(getTypeOrmConfig()),
     AuthModule,
     UserModule,
     ProductsModule,

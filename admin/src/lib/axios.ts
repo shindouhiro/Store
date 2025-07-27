@@ -29,7 +29,7 @@ http.interceptors.request.use(
 // 响应拦截器
 http.interceptors.response.use(
   (response) => {
-    return response.data;
+    return response;
   },
   (error: AxiosError) => {
     if (error.response) {
