@@ -7,11 +7,7 @@ import type { MenuDataItem } from '@ant-design/pro-components';
 import type { AvatarProps } from 'antd';
 import {
   DashboardOutlined,
-  UserOutlined,
-  SettingOutlined,
-  TeamOutlined,
   ShopOutlined,
-  FileOutlined,
   BarsOutlined,
 } from '@ant-design/icons';
 import './globals.css';
@@ -22,23 +18,7 @@ const menuData = [
     name: '仪表盘',
     icon: <DashboardOutlined />,
   },
-  {
-    path: '/users',
-    name: '用户管理',
-    icon: <UserOutlined />,
-    children: [
-      {
-        path: '/users/list',
-        name: '用户列表',
-        icon: <TeamOutlined />,
-      },
-      {
-        path: '/users/settings',
-        name: '用户设置',
-        icon: <SettingOutlined />,
-      },
-    ],
-  },
+ 
   {
     path: '/products',
     name: '商品管理',
@@ -49,16 +29,7 @@ const menuData = [
     name: '分类管理',
     icon: <BarsOutlined />,
   },
-  {
-    path: '/orders',
-    name: '订单管理',
-    icon: <BarsOutlined />,
-  },
-  {
-    path: '/files',
-    name: '文件管理',
-    icon: <FileOutlined />,
-  },
+
 ];
 
 function AdminLayout({ children }: { children: React.ReactNode }) {

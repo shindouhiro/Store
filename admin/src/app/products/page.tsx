@@ -35,7 +35,6 @@ const ProductPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [imagePreviewVisible, setImagePreviewVisible] = useState(false);
   const [videoPreviewVisible, setVideoPreviewVisible] = useState(false);
-  const [previewImage, setPreviewImage] = useState('');
   const [previewVideo, setPreviewVideo] = useState('');
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const actionRef = useRef<ActionType>();
@@ -113,6 +112,7 @@ const ProductPage: React.FC = () => {
 
   // 预览视频
   const handleVideoPreview = (videoUrl: string) => {
+    if (!videoUrl) return;
     setPreviewVideo(getFullVideoUrl(videoUrl));
     setVideoPreviewVisible(true);
   };

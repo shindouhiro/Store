@@ -12,6 +12,7 @@ export interface Product {
     id: number;
     name: string;
   };
+  features?: string[];
   images?: string[];
   videoUrl?: string;
   status: 'active' | 'inactive' | 'draft';
