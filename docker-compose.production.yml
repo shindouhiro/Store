@@ -30,8 +30,15 @@ services:
     image: shindouhiro/storeserver:latest
     container_name: store-server
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
+      - MYSQL_HOST=${MYSQL_HOST:-139.224.238.136}
+      - MYSQL_PORT=${MYSQL_PORT:-3306}
+      - MYSQL_USER=${MYSQL_USER:-nest_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-nest_password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-nest_demo}
       - OSS_REGION=${OSS_REGION:-oss-cn-shanghai}
       - OSS_ACCESS_KEY_ID=${OSS_ACCESS_KEY_ID}
       - OSS_ACCESS_KEY_SECRET=${OSS_ACCESS_KEY_SECRET}
