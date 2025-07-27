@@ -7,6 +7,11 @@ import * as fs from 'fs';
 export class OssService {
   async uploadOSS(objectName: string, localFilePath: string, headers?: Record<string, string>) {
     try {
+      // 检查OSS客户端是否可用
+      if (!client) {
+        throw new Error('OSS客户端未初始化，请检查环境变量配置');
+      }
+
       const result = await client.put(objectName, path.normalize(localFilePath), { headers });
       
       // 上传成功后删除临时文件
