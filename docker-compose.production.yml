@@ -74,7 +74,7 @@ services:
       # 服务端API地址 - SSR时使用
       - API_URL=http://server:3000
     ports:
-      - "3001:3000"
+      - "4000:3000"
     depends_on:
       - server
     networks:
@@ -94,7 +94,7 @@ services:
     environment:
       - NODE_ENV=production
     ports:
-      - "80:80"
+      - "3002:80"
     depends_on:
       - server
     networks:

@@ -20,7 +20,10 @@ export class OssService {
       }
       
       // 返回OSS URL
-      const url = `https://${client.options.bucket}.${client.options.endpoint}/${objectName}`;
+      // 构造正确的OSS URL格式
+      const bucket = client.options.bucket;
+      const region = client.options.region;
+      const url = `https://${bucket}.${region}.aliyuncs.com/${objectName}`;
       
       return {
         data: {
