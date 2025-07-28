@@ -62,6 +62,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
+      - USE_BASEPATH=false
       - DB_HOST=mysql
       - DB_PORT=3306
       - DB_USERNAME=nest_user
