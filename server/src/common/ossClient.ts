@@ -1,4 +1,4 @@
-import OSS from 'ali-oss';
+import * as OSS from 'ali-oss';
 import config from '../config/oss.config';
 
 // 定义 OSS 配置接口
