@@ -14,6 +14,11 @@ const getBaseConfig = () => ({
   database: process.env.MYSQL_DATABASE || 'nest_demo',
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV !== 'production',
+  // 禁用 SSL 连接
+  ssl: false,
+  extra: {
+    ssl: false,
+  },
 });
 
 // NestJS TypeORM 配置函数
