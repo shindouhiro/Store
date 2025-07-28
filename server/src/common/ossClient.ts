@@ -1,4 +1,4 @@
-import * as OSS from 'ali-oss';
+const OSS = require('ali-oss');
 import config from '../config/oss.config';
 
 // 定义 OSS 配置接口
@@ -9,14 +9,6 @@ interface OSSConfig {
   bucket: string;
 }
 
-// 定义 OSS 客户端类型
-type OSSClient = OSS & {
-  options: {
-    bucket: string;
-    endpoint: string;
-  };
-};
-
 // 获取 OSS 配置
 const ossConfig: OSSConfig = config().oss;
 
@@ -24,7 +16,7 @@ const ossConfig: OSSConfig = config().oss;
  * 初始化 OSS 客户端
  * @returns OSS 客户端实例或 null（如果配置不完整）
  */
-function createOSSClient(): OSSClient | null {
+function createOSSClient(): any {
   // 检查必要的配置项
   if (!ossConfig.accessKeyId || !ossConfig.accessKeySecret) {
     console.warn('OSS配置缺失，请设置环境变量 OSS_ACCESS_KEY_ID 和 OSS_ACCESS_KEY_SECRET');
@@ -45,10 +37,10 @@ function createOSSClient(): OSSClient | null {
     accessKeySecret: ossConfig.accessKeySecret,
     bucket: ossConfig.bucket,
     authorizationV4: true,
-  }) as OSSClient;
+  });
 }
 
 // 创建 OSS 客户端实例
-const client: OSSClient | null = createOSSClient();
+const client = createOSSClient();
 
 export default client;
