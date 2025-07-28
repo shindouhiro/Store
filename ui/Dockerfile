@@ -28,8 +28,8 @@ FROM nginx:alpine AS production
 # 复制构建的静态文件到 Nginx 默认目录
 COPY --from=builder /app/dist/public /usr/share/nginx/html
 
-# 复制自定义的 Nginx 配置
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# 复制完整的 Nginx 配置（覆盖主配置文件）
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # 暴露 80 端口
 EXPOSE 80
