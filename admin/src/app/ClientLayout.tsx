@@ -9,6 +9,7 @@ import {
   DashboardOutlined,
   ShopOutlined,
   BarsOutlined,
+  MessageOutlined,
 } from '@ant-design/icons';
 import './globals.css';
 
@@ -29,7 +30,11 @@ const menuData = [
     name: '分类管理',
     icon: <BarsOutlined />,
   },
-
+  {
+    path: '/messages',
+    name: '留言管理',
+    icon: <MessageOutlined />,
+  },
 ];
 
 function AdminLayout({ children }: { children: React.ReactNode }) {

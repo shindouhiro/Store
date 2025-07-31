@@ -5,6 +5,7 @@ import { UserModule } from './user/user.module';
 import { ProductsModule } from './products/products.module';
 import { CategoryModule } from './category/category.module';
 import { OssModule } from './oss/oss.module';
+import { MessageModule } from './message/message.module';
 import { ConfigModule } from '@nestjs/config';
 import { getTypeOrmConfig } from './config/database.config';
 
@@ -20,6 +21,7 @@ import { getTypeOrmConfig } from './config/database.config';
     ProductsModule,
     CategoryModule,
     OssModule,
+    MessageModule,
   ],
 })
 export class AppModule { } 
