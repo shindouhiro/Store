@@ -3,6 +3,7 @@ import { DataSourceOptions } from 'typeorm';
 import { Product } from '../products/entities/product.entity';
 import { Category } from '../category/entities/category.entity';
 import { User } from '../user/entities/user.entity';
+import { Message } from '../message/entities/message.entity';
 
 // 基础数据库配置函数
 const getBaseConfig = () => ({
@@ -31,5 +32,5 @@ export const getTypeOrmConfig = (): TypeOrmModuleOptions => ({
 // TypeORM DataSource 配置函数（用于 seeds）
 export const getDataSourceConfig = (): DataSourceOptions => ({
   ...getBaseConfig(),
-  entities: [Product, Category, User],
+  entities: [Product, Category, User, Message],
 }); 

@@ -9,6 +9,10 @@
     "start:prod": "node dist/main",
     "seed": "tsx seeds/index.ts",
     "seed:build": "npm run build && node dist/database/seeds/run-seeds.js",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "npm run typeorm -- migration:generate -d ormconfig.ts",
+    "migration:run": "npm run typeorm -- migration:run -d ormconfig.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d ormconfig.ts",
     "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {

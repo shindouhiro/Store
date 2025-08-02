@@ -93,7 +93,15 @@ export default function ProductDetail() {
     );
   }
 
-  const specifications = JSON.parse(product.specifications || "{}");
+  // 安全地解析 specifications JSON
+  let specifications = {};
+  try {
+    specifications = JSON.parse(product.specifications || "{}");
+  } catch (error) {
+    console.warn("Failed to parse product specifications:", error);
+    specifications = {};
+  }
+  
   const rating = parseFloat(product.rating || "0");
 
 

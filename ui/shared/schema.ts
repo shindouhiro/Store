@@ -34,8 +34,8 @@ export const inquiries = pgTable("inquiries", {
   firstName: text("first_name").notNull(),
   lastName: text("last_name").notNull(),
   email: text("email").notNull(),
-  company: text("company").notNull(),
-  productInterest: text("product_interest").notNull(),
+  company: text("company"),
+  productInterest: text("product_interest"),
   message: text("message").notNull(),
   createdAt: text("created_at").notNull(),
 });

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import client from '../common/ossClient';
+import getOssClient from '../config/oss.config';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -7,6 +7,8 @@ import * as fs from 'fs';
 export class OssService {
   async uploadOSS(objectName: string, localFilePath: string, headers?: Record<string, string>) {
     try {
+      const client = getOssClient();
+      console.log(client,'client')
       // 检查OSS客户端是否可用
       if (!client) {
         throw new Error('OSS客户端未初始化，请检查环境变量配置');

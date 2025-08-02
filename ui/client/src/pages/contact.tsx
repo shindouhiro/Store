@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { MapPin, Phone, Mail, Send, CheckCircle } from "lucide-react";
 import { fadeInUp, slideInLeft, slideInRight, staggerContainer } from "@/lib/animations";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,20 @@ export default function Contact() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
+  // 獲取分類數據
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
+    queryKey: ['/api/categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/categories?active=true');
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+      const result = await response.json();
+      return result.data || result || [];
+    },
+    staleTime: 5 * 60 * 1000, // 5分鐘緩存
+  });
+  
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -26,12 +40,12 @@ export default function Contact() {
 
   const submitInquiry = useMutation({
     mutationFn: async (data: InsertInquiry) => {
-      return await apiRequest("POST", "/api/inquiries", data);
+      return await apiRequest("POST", "/api/messages", data);
     },
     onSuccess: () => {
       toast({
-        title: "Inquiry Submitted Successfully!",
-        description: "We'll get back to you within 24 hours.",
+        title: "留言提交成功！",
+        description: "我們將在24小時內回覆您。",
       });
       setFormData({
         firstName: "",
@@ -41,12 +55,12 @@ export default function Contact() {
         productInterest: "",
         message: "",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/inquiries"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
     },
     onError: (error: any) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to submit inquiry. Please try again.",
+        title: "提交失敗",
+        description: error.message || "留言提交失敗，請稍後重試。",
         variant: "destructive",
       });
     },
@@ -56,10 +70,10 @@ export default function Contact() {
     e.preventDefault();
     
     // Basic validation
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.company || !formData.productInterest || !formData.message) {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.message) {
       toast({
-        title: "Please fill in all fields",
-        description: "All fields are required to submit your inquiry.",
+        title: "請填寫必填字段",
+        description: "姓名、郵箱和留言內容為必填項。",
         variant: "destructive",
       });
       return;
@@ -172,28 +186,37 @@ export default function Contact() {
               </div>
               
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Company *</label>
+                <label className="block text-gray-700 font-semibold mb-2">Company</label>
                 <Input
                   type="text"
                   value={formData.company}
                   onChange={(e) => handleInputChange("company", e.target.value)}
-                  placeholder="Your Company Name"
+                  placeholder="Your Company Name (Optional)"
                   className="rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
                 />
               </div>
               
               <div>
-                <label className="block text-gray-700 font-semibold mb-2">Product Interest *</label>
+                <label className="block text-gray-700 font-semibold mb-2">Product Interest</label>
                 <Select value={formData.productInterest} onValueChange={(value) => handleInputChange("productInterest", value)}>
                   <SelectTrigger className="rounded-xl border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <SelectValue placeholder="Select Category" />
+                    <SelectValue placeholder={categoriesLoading ? "Loading categories..." : "Select Category (Optional)"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="athletic">Athletic Shoes</SelectItem>
-                    <SelectItem value="casual">Casual Shoes</SelectItem>
-                    <SelectItem value="dress">Dress Shoes</SelectItem>
-                    <SelectItem value="all">All Categories</SelectItem>
+                    {categoriesLoading ? (
+                      <SelectItem value="loading" disabled>Loading categories...</SelectItem>
+                    ) : categories.length > 0 ? (
+                      <>
+                        {categories.map((category: any) => (
+                          <SelectItem key={category.id} value={category.name}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="all">All Categories</SelectItem>
+                      </>
+                    ) : (
+                      <SelectItem value="no-categories" disabled>No categories available</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
