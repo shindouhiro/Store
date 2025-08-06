@@ -96,7 +96,19 @@ export default function ProductDetail() {
   // 安全地解析 specifications JSON
   let specifications = {};
   try {
-    specifications = JSON.parse(product.specifications || "{}");
+    // 檢查 specifications 是否為有效的 JSON 字符串
+    if (product.specifications && typeof product.specifications === 'string' && product.specifications.trim() !== '') {
+      const trimmedSpecs = product.specifications.trim();
+      // 檢查是否以 { 開始和 } 結束，確保是有效的 JSON 對象格式
+      if (trimmedSpecs.startsWith('{') && trimmedSpecs.endsWith('}')) {
+        specifications = JSON.parse(trimmedSpecs);
+      } else {
+        console.warn("Product specifications is not a valid JSON object format:", product.specifications);
+        specifications = {};
+      }
+    } else {
+      specifications = {};
+    }
   } catch (error) {
     console.warn("Failed to parse product specifications:", error);
     specifications = {};
