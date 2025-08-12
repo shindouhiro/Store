@@ -96,8 +96,9 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
       }
     };
     
-    // 使用 requestIdleCallback 在浏览器空闲时检查
+    // 使用 requestIdleCallback 在浏览器空闲时检查，如果不支持则降级到 setTimeout
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      // 使用类型断言，因为 requestIdleCallback 可能不在所有浏览器中可用
       (window as any).requestIdleCallback(checkAuth);
     } else {
       setTimeout(checkAuth, 0);
