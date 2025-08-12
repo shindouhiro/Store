@@ -3,18 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "description": "Monorepo workspace containing server, admin, and ui projects",
-  "scripts": {
+    "scripts": {
     "build:server": "pnpm run --filter server build",
     "build:admin": "pnpm run --filter admin build", 
     "build:ui": "pnpm run --filter rest-express build",
+    "build:all": "pnpm -r --filter admin --filter server --filter rest-express build",
     "dev:server": "pnpm run --filter server dev",
     "dev:admin": "pnpm run --filter admin dev",
-    "dev:ui": "pnpm run --filter rest-express dev"
+    "dev:ui": "pnpm run --filter rest-express vite",
+    "start": "concurrently \"pnpm run dev:admin\" \"pnpm run dev:server\" \"pnpm run dev:ui\" --names \"admin,server,ui\" --prefix-colors \"blue,green,yellow\""
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  },
   "workspaces": [
     "server",
-    "admin", 
+    "admin",
     "ui"
   ]
-} 
+}
