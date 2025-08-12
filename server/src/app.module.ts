@@ -8,6 +8,7 @@ import { OssModule } from './oss/oss.module';
 import { MessageModule } from './message/message.module';
 import { ConfigModule } from '@nestjs/config';
 import { getTypeOrmConfig } from './config/database.config';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { getTypeOrmConfig } from './config/database.config';
     CategoryModule,
     OssModule,
     MessageModule,
+    ContactModule,
   ],
 })
 export class AppModule { } 

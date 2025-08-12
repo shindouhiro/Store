@@ -10,6 +10,7 @@ import {
   ShopOutlined,
   BarsOutlined,
   MessageOutlined,
+  ContactsOutlined,
 } from '@ant-design/icons';
 import './globals.css';
 
@@ -34,6 +35,11 @@ const menuData = [
     path: '/messages',
     name: '留言管理',
     icon: <MessageOutlined />,
+  },
+  {
+    path: '/contact',
+    name: '联系信息',
+    icon: <ContactsOutlined />,
   },
 ];
 
@@ -99,7 +105,7 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
     // 使用 requestIdleCallback 在浏览器空闲时检查，如果不支持则降级到 setTimeout
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
       // 使用类型断言，因为 requestIdleCallback 可能不在所有浏览器中可用
-      (window as any).requestIdleCallback(checkAuth);
+      (window as unknown as { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback?.(checkAuth);
     } else {
       setTimeout(checkAuth, 0);
     }

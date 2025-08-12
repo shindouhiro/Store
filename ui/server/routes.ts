@@ -5,6 +5,7 @@ import { insertInquirySchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  const backendBase = process.env.BACKEND_URL || 'http://localhost:3000';
   // Get all products
   app.get("/api/products", async (_req, res) => {
     try {
@@ -77,6 +78,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Proxy: Get public contact info from backend
+  app.get("/api/contact", async (_req, res) => {
+    try {
+      const r = await fetch(`${backendBase}/contact/public`);
+      if (!r.ok) {
+        const text = await r.text();
+        return res.status(r.status).json({ message: text || 'Failed to fetch contact' });
+      }
+      const data = await r.json();
+      res.json({ data });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch contact" });
+    }
+  });
+
   // Get active categories
   app.get("/api/categories/active", async (_req, res) => {
     try {
@@ -104,6 +120,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       res.status(500).json({ message: "Failed to submit inquiry" });
+    }
+  });
+
+  // Proxy: forward UI message submission to backend /messages
+  app.post("/api/messages", async (req, res) => {
+    try {
+      const r = await fetch(`${backendBase}/messages`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req.body),
+      });
+      const text = await r.text();
+      if (!r.ok) {
+        return res.status(r.status).send(text);
+      }
+      try {
+        return res.status(r.status).json(JSON.parse(text));
+      } catch {
+        return res.status(r.status).send(text);
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to submit message' });
     }
   });
 

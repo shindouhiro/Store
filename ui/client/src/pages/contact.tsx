@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
-import { MapPin, Phone, Mail, Send, CheckCircle } from "lucide-react";
+import { MapPin, Phone, Mail, Send } from "lucide-react";
 import { fadeInUp, slideInLeft, slideInRight, staggerContainer } from "@/lib/animations";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,33 +89,43 @@ export default function Contact() {
     }));
   };
 
-  const contactInfo = [
-    {
-      icon: MapPin,
-      title: "Our Location",
-      details: ["123 Business District", "Shanghai, China 200000", "Manufacturing Hub"],
-      gradient: "from-blue-500 to-purple-600",
+  const { data: contactResp } = useQuery({
+    queryKey: ['/api/contact'],
+    queryFn: async () => {
+      const r = await fetch('/api/contact');
+      if (!r.ok) throw new Error('Failed to fetch contact');
+      return r.json();
     },
-    {
-      icon: Phone,
-      title: "Phone & WhatsApp",
-      details: ["+86 138 0000 0000", "+86 139 0000 0000", "24/7 Business Support"],
-      gradient: "from-green-500 to-blue-600",
-    },
-    {
-      icon: Mail,
-      title: "Email Address",
-      details: ["info@shoetraderspro.com", "sales@shoetraderspro.com", "Quick Response Guaranteed"],
-      gradient: "from-purple-500 to-pink-600",
-    },
-  ];
+    staleTime: 5 * 60 * 1000,
+  });
 
-  const socialLinks = [
-    { icon: "fab fa-linkedin", href: "#", label: "LinkedIn" },
-    { icon: "fab fa-twitter", href: "#", label: "Twitter" },
-    { icon: "fab fa-instagram", href: "#", label: "Instagram" },
-    { icon: "fab fa-whatsapp", href: "#", label: "WhatsApp" },
-  ];
+  type UiContactInfo = { icon: any; title: string; details: string[]; gradient: string };
+  const contactInfo: UiContactInfo[] = (contactResp?.data || [])
+    .filter((c: any) => c.type !== 'social')
+    .map((c: any) => {
+      let details: string[] = [];
+      if (c.detailsJson) {
+        try {
+          const parsed = JSON.parse(c.detailsJson);
+          if (Array.isArray(parsed)) details = parsed as string[];
+        } catch {}
+      }
+      const iconMap: Record<string, any> = { MapPin, Phone, Mail };
+      const IconComp = iconMap[c.icon || ''] || MapPin;
+      return { icon: IconComp, title: c.title, details, gradient: c.gradient || 'from-blue-500 to-purple-600' };
+    });
+
+  const socialLinks = (contactResp?.data || [])
+    .filter((c: any) => c.type === 'social')
+    .flatMap((c: any) => {
+      try {
+        const arr = JSON.parse(c.detailsJson || '[]');
+        return Array.isArray(arr) ? arr : [];
+      } catch {
+        return [];
+      }
+    });
+  
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -260,7 +270,7 @@ export default function Contact() {
             animate="animate"
             className="space-y-8"
           >
-            {contactInfo.map((info, index) => {
+            {contactInfo.map((info: UiContactInfo, index: number) => {
               const IconComponent = info.icon;
               return (
                 <motion.div
@@ -275,7 +285,7 @@ export default function Contact() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-gray-800 mb-2">{info.title}</h3>
-                      {info.details.map((detail, i) => (
+                      {info.details.map((detail: string, i: number) => (
                         <p key={i} className="text-gray-600">
                           {detail}
                           {i < info.details.length - 1 && <br />}
@@ -296,7 +306,7 @@ export default function Contact() {
               <h3 className="text-xl font-bold mb-4">Follow Our Journey</h3>
               <p className="mb-6">Stay updated with our latest products, industry insights, and exclusive offers</p>
               <div className="flex space-x-4">
-                {socialLinks.map((social, index) => (
+                {socialLinks.map((social: any, index: number) => (
                   <motion.a
                     key={index}
                     href={social.href}
