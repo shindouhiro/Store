@@ -25,3 +25,40 @@ body {
     text-wrap: balance;
   }
 }
+
+/* 加载动画 */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* 性能优化 */
+* {
+  box-sizing: border-box;
+}
+
+/* 减少重绘和重排 */
+.pro-layout {
+  will-change: auto;
+}
+
+/* 优化滚动性能 */
+.pro-layout .ant-layout-sider {
+  will-change: transform;
+}
+
+/* 预加载关键资源 */
+.pro-layout .ant-menu {
+  contain: layout style;
+}
+
+/* 减少布局抖动 */
+.pro-layout .ant-layout-content {
+  min-height: 100vh;
+  contain: layout style;
+}
