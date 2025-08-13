@@ -7,6 +7,9 @@ import { OssController } from './oss.controller';
   imports: [
     MulterModule.register({
       dest: './uploads/temp',
+      limits: {
+        fileSize: 5 * 1024 * 1024 * 1024, // 限制文件大小为5GB
+      },
     }),
   ],
   controllers: [OssController],
